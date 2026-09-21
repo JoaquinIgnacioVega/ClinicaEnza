@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ClinicaEnza.Data/ClinicaEnza.Data.csproj" />
+    <Project Path="src/ClinicaEnza.Desktop/ClinicaEnza.Desktop.csproj" />
+    <Project Path="src/ClinicaEnza.Domain/ClinicaEnza.Domain.csproj" />
+    <Project Path="src/ClinicaEnza.Tests/ClinicaEnza.Tests.csproj" />
+  </Folder>
+</Solution>
