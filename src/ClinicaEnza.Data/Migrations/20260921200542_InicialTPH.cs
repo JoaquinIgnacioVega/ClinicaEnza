@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ClinicaEnza.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class InicialTPH : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,74 +36,21 @@ namespace ClinicaEnza.Data.Migrations
                     Apellido = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Dni = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     FechaNacimiento = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Mail = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false)
+                    Mail = table.Column<string>(type: "TEXT", maxLength: 150, nullable: false),
+                    TipoPersona = table.Column<string>(type: "TEXT", maxLength: 8, nullable: false),
+                    Especialidad = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    FechaInicio = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Matricula = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    ObraSocial = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    Peso = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Altura = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Legajo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Usuario_FechaInicio = table.Column<DateTime>(type: "TEXT", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    Rol = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Personas", x => x.IdPersona);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Medicos",
-                columns: table => new
-                {
-                    IdPersona = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Especialidad = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    FechaInicio = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Matricula = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Medicos", x => x.IdPersona);
-                    table.ForeignKey(
-                        name: "FK_Medicos_Personas_IdPersona",
-                        column: x => x.IdPersona,
-                        principalTable: "Personas",
-                        principalColumn: "IdPersona",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Pacientes",
-                columns: table => new
-                {
-                    IdPersona = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ObraSocial = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    Peso = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Altura = table.Column<decimal>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Pacientes", x => x.IdPersona);
-                    table.ForeignKey(
-                        name: "FK_Pacientes_Personas_IdPersona",
-                        column: x => x.IdPersona,
-                        principalTable: "Personas",
-                        principalColumn: "IdPersona",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Usuarios",
-                columns: table => new
-                {
-                    IdPersona = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Legajo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    FechaInicio = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    Rol = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Usuarios", x => x.IdPersona);
-                    table.ForeignKey(
-                        name: "FK_Usuarios_Personas_IdPersona",
-                        column: x => x.IdPersona,
-                        principalTable: "Personas",
-                        principalColumn: "IdPersona",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,9 +65,9 @@ namespace ClinicaEnza.Data.Migrations
                 {
                     table.PrimaryKey("PK_HistoriasClinicas", x => x.IdHistoriaClinica);
                     table.ForeignKey(
-                        name: "FK_HistoriasClinicas_Pacientes_IdPaciente",
+                        name: "FK_HistoriasClinicas_Personas_IdPaciente",
                         column: x => x.IdPaciente,
-                        principalTable: "Pacientes",
+                        principalTable: "Personas",
                         principalColumn: "IdPersona",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -132,6 +79,7 @@ namespace ClinicaEnza.Data.Migrations
                     IdTurno = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Horario = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Estado = table.Column<string>(type: "TEXT", nullable: false),
                     IdPaciente = table.Column<int>(type: "INTEGER", nullable: false),
                     IdMedico = table.Column<int>(type: "INTEGER", nullable: false),
                     IdConsultorio = table.Column<int>(type: "INTEGER", nullable: false)
@@ -146,15 +94,15 @@ namespace ClinicaEnza.Data.Migrations
                         principalColumn: "IdConsultorio",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Turnos_Medicos_IdMedico",
+                        name: "FK_Turnos_Personas_IdMedico",
                         column: x => x.IdMedico,
-                        principalTable: "Medicos",
+                        principalTable: "Personas",
                         principalColumn: "IdPersona",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Turnos_Pacientes_IdPaciente",
+                        name: "FK_Turnos_Personas_IdPaciente",
                         column: x => x.IdPaciente,
-                        principalTable: "Pacientes",
+                        principalTable: "Personas",
                         principalColumn: "IdPersona",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -179,9 +127,9 @@ namespace ClinicaEnza.Data.Migrations
                         principalColumn: "IdHistoriaClinica",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PrescripcionesMedicas_Medicos_IdMedico",
+                        name: "FK_PrescripcionesMedicas_Personas_IdMedico",
                         column: x => x.IdMedico,
-                        principalTable: "Medicos",
+                        principalTable: "Personas",
                         principalColumn: "IdPersona",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -193,15 +141,15 @@ namespace ClinicaEnza.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Medicos_Matricula",
-                table: "Medicos",
-                column: "Matricula",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Personas_Dni",
                 table: "Personas",
                 column: "Dni",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Personas_Matricula",
+                table: "Personas",
+                column: "Matricula",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -240,19 +188,10 @@ namespace ClinicaEnza.Data.Migrations
                 name: "Turnos");
 
             migrationBuilder.DropTable(
-                name: "Usuarios");
-
-            migrationBuilder.DropTable(
                 name: "HistoriasClinicas");
 
             migrationBuilder.DropTable(
                 name: "Consultorios");
-
-            migrationBuilder.DropTable(
-                name: "Medicos");
-
-            migrationBuilder.DropTable(
-                name: "Pacientes");
 
             migrationBuilder.DropTable(
                 name: "Personas");

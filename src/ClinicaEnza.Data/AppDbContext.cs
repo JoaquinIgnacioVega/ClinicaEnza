@@ -30,12 +30,15 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Persona
-
         modelBuilder.Entity<Persona>(entity =>
         {
             entity.ToTable("Personas");
             entity.HasKey(e => e.IdPersona);
+
+            entity.HasDiscriminator<string>("TipoPersona")
+                  .HasValue<Paciente>("Paciente")
+                  .HasValue<Medico>("Medico")
+                  .HasValue<Usuario>("Usuario");
 
             entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Apellido).IsRequired().HasMaxLength(100);
@@ -45,23 +48,15 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.Dni).IsUnique();
         });
 
-        // Usuario
-
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.ToTable("Usuarios");
-
             entity.Property(e => e.Legajo).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Rol).IsRequired().HasMaxLength(50);
             entity.Property(e => e.FechaInicio).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
 
-        // Medico
-
         modelBuilder.Entity<Medico>(entity =>
         {
-            entity.ToTable("Medicos");
-
             entity.Property(e => e.Matricula).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Especialidad).IsRequired().HasMaxLength(100);
 
@@ -70,12 +65,11 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Paciente>(entity =>
         {
-            entity.ToTable("Pacientes");
-
             entity.Property(e => e.ObraSocial).HasMaxLength(100);
-        });
 
-        // Historia Clinica
+            entity.Property(e => e.Peso).HasColumnType("TEXT");
+            entity.Property(e => e.Altura).HasColumnType("TEXT");
+        });
 
         modelBuilder.Entity<HistoriaClinica>(entity =>
         {
@@ -87,8 +81,6 @@ public class AppDbContext : DbContext
                   .HasForeignKey<HistoriaClinica>(e => e.IdPaciente)
                   .OnDelete(DeleteBehavior.Cascade);
         });
-
-        // Prescripcion Medica
 
         modelBuilder.Entity<PrescripcionMedica>(entity =>
         {
@@ -108,8 +100,6 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // Consultorio
-
         modelBuilder.Entity<Consultorio>(entity =>
         {
             entity.ToTable("Consultorios");
@@ -119,16 +109,14 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Sector).HasMaxLength(50);
         });
 
-        // Turnos
-
         modelBuilder.Entity<Turno>(entity =>
         {
             entity.ToTable("Turnos");
             entity.HasKey(e => e.IdTurno);
 
             entity.Property(e => e.Horario).IsRequired();
+            entity.Property(e => e.Estado).IsRequired().HasMaxLength(50).HasDefaultValue("Pendiente");
 
-            // Índices para optimizar la búsqueda de solapamientos
             entity.HasIndex(e => new { e.IdMedico, e.Horario });
             entity.HasIndex(e => new { e.IdConsultorio, e.Horario });
 

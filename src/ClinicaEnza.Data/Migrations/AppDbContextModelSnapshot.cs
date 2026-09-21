@@ -87,6 +87,11 @@ namespace ClinicaEnza.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("TipoPersona")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("IdPersona");
 
                     b.HasIndex("Dni")
@@ -94,7 +99,9 @@ namespace ClinicaEnza.Data.Migrations
 
                     b.ToTable("Personas", (string)null);
 
-                    b.UseTptMappingStrategy();
+                    b.HasDiscriminator<string>("TipoPersona").HasValue("Persona");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.PrescripcionMedica", b =>
@@ -128,6 +135,10 @@ namespace ClinicaEnza.Data.Migrations
                     b.Property<int>("IdTurno")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("Horario")
                         .HasColumnType("TEXT");
@@ -172,7 +183,7 @@ namespace ClinicaEnza.Data.Migrations
                     b.HasIndex("Matricula")
                         .IsUnique();
 
-                    b.ToTable("Medicos", (string)null);
+                    b.HasDiscriminator().HasValue("Medico");
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.Paciente", b =>
@@ -190,7 +201,7 @@ namespace ClinicaEnza.Data.Migrations
                     b.Property<decimal>("Peso")
                         .HasColumnType("TEXT");
 
-                    b.ToTable("Pacientes", (string)null);
+                    b.HasDiscriminator().HasValue("Paciente");
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.Usuario", b =>
@@ -212,7 +223,13 @@ namespace ClinicaEnza.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.ToTable("Usuarios", (string)null);
+                    b.ToTable("Personas", t =>
+                        {
+                            t.Property("FechaInicio")
+                                .HasColumnName("Usuario_FechaInicio");
+                        });
+
+                    b.HasDiscriminator().HasValue("Usuario");
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.HistoriaClinica", b =>
@@ -270,33 +287,6 @@ namespace ClinicaEnza.Data.Migrations
                     b.Navigation("Medico");
 
                     b.Navigation("Paciente");
-                });
-
-            modelBuilder.Entity("ClinicaEnza.Domain.Medico", b =>
-                {
-                    b.HasOne("ClinicaEnza.Domain.Persona", null)
-                        .WithOne()
-                        .HasForeignKey("ClinicaEnza.Domain.Medico", "IdPersona")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ClinicaEnza.Domain.Paciente", b =>
-                {
-                    b.HasOne("ClinicaEnza.Domain.Persona", null)
-                        .WithOne()
-                        .HasForeignKey("ClinicaEnza.Domain.Paciente", "IdPersona")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ClinicaEnza.Domain.Usuario", b =>
-                {
-                    b.HasOne("ClinicaEnza.Domain.Persona", null)
-                        .WithOne()
-                        .HasForeignKey("ClinicaEnza.Domain.Usuario", "IdPersona")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.Consultorio", b =>

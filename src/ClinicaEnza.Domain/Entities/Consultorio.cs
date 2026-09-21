@@ -14,5 +14,27 @@ public class Consultorio
     public string Sector { get; set; } = string.Empty;
 
     // Propiedad de navegación
-    public List<Turno> Turnos { get; set; } = new();
+    public List<Turno> Turnos { get; private set; } = new();
+
+    protected Consultorio() { }
+
+    public Consultorio(string numero, int piso, string sector)
+    {
+        if (string.IsNullOrWhiteSpace(numero)) throw new ArgumentException("El número de consultorio es obligatorio.", nameof(numero));
+
+        Numero = numero;
+        Piso = piso;
+        Sector = sector;
+    }
+
+    public string ObtenerUbicacion()
+    {
+        return $"Consultorio N° {Numero} (Piso {Piso}, Sector {Sector})";
+    }
+
+    public bool EstaDisponibleEn(DateTime horario)
+    {
+        // Un consultorio no está disponible si ya existe un turno activo en ese horario exacto
+        return !Turnos.Any(t => t.Horario == horario && t.Estado != "Cancelado");
+    }
 }
