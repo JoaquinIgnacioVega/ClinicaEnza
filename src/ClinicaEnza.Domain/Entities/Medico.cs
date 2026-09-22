@@ -8,21 +8,19 @@ namespace ClinicaEnza.Domain
 {
     public class Medico : Persona
     {
-        public string Especialidad { get; set; } = string.Empty;
-        public DateTime FechaInicio { get; set; }
-        public string Matricula { get; set; } = string.Empty;
-
-        // Propiedades de navegación
+        public Especialidad Especialidad { get; private set; }
+        public DateTime FechaInicio { get; private set; }
+        public string Matricula { get; private set; } = string.Empty;
         public List<Turno> Turnos { get; private set; } = new();
         public List<PrescripcionMedica> Prescripciones { get; private set; } = new();
 
         protected Medico() { }
 
-        public Medico(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, string especialidad, string matricula)
-        : base(nombre, apellido, dni, fechaNacimiento, mail)
+        public Medico(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, Especialidad especialidad, string matricula)
+            : base(nombre, apellido, dni, fechaNacimiento, mail)
         {
-            if (string.IsNullOrWhiteSpace(especialidad)) throw new ArgumentException("La especialidad es obligatoria.", nameof(especialidad));
-            if (string.IsNullOrWhiteSpace(matricula)) throw new ArgumentException("La matrícula es obligatoria.", nameof(matricula));
+            if (string.IsNullOrWhiteSpace(matricula))
+                throw new ArgumentException("La matrícula es obligatoria.", nameof(matricula));
 
             Especialidad = especialidad;
             Matricula = matricula;

@@ -9,13 +9,12 @@ namespace ClinicaEnza.Domain;
 public class PrescripcionMedica
 {
     public int IdPrescripcion { get; set; }
-    public string Medicamento { get; set; } = string.Empty;
-
-    // Claves foráneas
-    public int IdHistoriaClinica { get; set; }
+    public string Medicamento { get; private set; } = string.Empty;
+    public DateTime Fecha { get; private set; } = DateTime.Now;
+    public int IdHistoriaClinica { get; private set; }
     public HistoriaClinica HistoriaClinica { get; private set; } = null!;
 
-    public int IdMedico { get; set; }
+    public int IdMedico { get; private set; }
     public Medico Medico { get; private set; } = null!;
 
     protected PrescripcionMedica() { }
@@ -31,11 +30,12 @@ public class PrescripcionMedica
 
         IdHistoriaClinica = historiaClinica.IdHistoriaClinica;
         IdMedico = medico.IdPersona;
+        Fecha = DateTime.Now;
     }
 
     public string ObtenerDetalle()
     {
         var medicoNombre = Medico != null ? Medico.ObtenerNombreCompleto() : "Médico no asignado";
-        return $"Prescripción: {Medicamento} | Emitida por: {medicoNombre}";
+        return $"Prescripción: {Medicamento} | Fecha: {Fecha:dd/MM/yyyy} | Emitida por: {medicoNombre}";
     }
 }
