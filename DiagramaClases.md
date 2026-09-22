@@ -1,4 +1,11 @@
+# Diagrama de clases - Clínica Enza
+
+Este diagrama representa las principales clases del sistema de gestión
+de turnos e historias clínicas de Clínica Enza.
+
+```mermaid
 classDiagram
+
     class Persona {
         <<abstract>>
         -int idPersona
@@ -13,9 +20,10 @@ classDiagram
     }
 
     class Usuario {
+        -int idUsuario
         -string legajo
         -DateTime fechaInicio
-        -string rol
+        -RolUsuario rol
         +EsAdministrador() bool
         +ObtenerIdentificacion() string
     }
@@ -29,7 +37,7 @@ classDiagram
     }
 
     class Medico {
-        -string especialidad
+        -Especialidad especialidad
         -DateTime fechaInicio
         -string matricula
         +ObtenerFichaProfesional() string
@@ -38,21 +46,22 @@ classDiagram
 
     class Turno {
         -int idTurno
-        -DateTime horario
-        -string estado
-        -int idPaciente
-        -int idMedico
-        -int idConsultorio
-        +Reagendar(DateTime nuevoHorario) void
-        +CambiarEstado(string nuevoEstado) void
-        +EsSolapadoCon(DateTime horarioComparar) bool
+        -DateTime horaInicio
+        -DateTime horaFin
+        -EstadoTurno estado
+        -Paciente paciente
+        -Medico medico
+        -Consultorio consultorio
+        +Reagendar(DateTime nuevaHoraInicio) void
+        +CambiarEstado(EstadoTurno nuevoEstado) void
+        +EsSolapadoCon(Turno otroTurno) bool
+        -CalcularHoraFin() void
     }
 
     class HistoriaClinica {
         -int idHistoriaClinica
-        -int idPaciente
         +AgregarPrescripcion(PrescripcionMedica prescripcion) void
-        +ObtenerPrescripcionesPorMedico(int idMedico) List~PrescripcionMedica~
+        +ObtenerPrescripcionesPorMedico(Medico medico) List~PrescripcionMedica~
         +ObtenerMedicamentosRecetados() List~string~
         +BuscarPrimeraPrescripcionDe(string medicamento) PrescripcionMedica
     }
@@ -60,8 +69,8 @@ classDiagram
     class PrescripcionMedica {
         -int idPrescripcion
         -string medicamento
-        -int idHistoriaClinica
-        -int idMedico
+        -DateTime fecha
+        -Medico medico
         +ObtenerDetalle() string
     }
 
@@ -71,7 +80,29 @@ classDiagram
         -int piso
         -string sector
         +ObtenerUbicacion() string
-        +EstaDisponibleEn(DateTime horario) bool
+    }
+
+    class EstadoTurno {
+        <<enumeration>>
+        Pendiente
+        Confirmado
+        Atendido
+        Cancelado
+    }
+
+    class RolUsuario {
+        <<enumeration>>
+        Administrador
+        Recepcionista
+        Medico
+    }
+
+    class Especialidad {
+        <<enumeration>>
+        Clinica
+        Pediatria
+        Cardiologia
+        Dermatologia
     }
 
     Persona <|-- Usuario
@@ -81,7 +112,14 @@ classDiagram
     Paciente "1" *-- "1" HistoriaClinica
     HistoriaClinica "1" *-- "0..*" PrescripcionMedica
     Medico "1" --> "0..*" PrescripcionMedica
-    
+
     Paciente "1" --> "0..*" Turno
     Medico "1" --> "0..*" Turno
     Turno "0..*" --> "1" Consultorio
+
+    Usuario "0..1" --> "0..1" Medico : cuenta asociada
+
+    Turno --> EstadoTurno
+    Usuario --> RolUsuario
+    Medico --> Especialidad
+```
