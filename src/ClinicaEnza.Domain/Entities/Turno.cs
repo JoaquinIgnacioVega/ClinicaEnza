@@ -9,26 +9,29 @@ namespace ClinicaEnza.Domain;
 public class Turno
 {
     public int IdTurno { get; set; }
-    public DateTime Horario { get; private set; }
-    public string Estado { get; private set; } = "Pendiente";
-    // Claves foráneas
-    public int IdPaciente { get; set; }
+    public DateTime HoraInicio { get; private set; }
+    public DateTime HoraFin { get; private set; }
+    public EstadoTurno Estado { get; private set; } = EstadoTurno.Pendiente;
+
+    public int IdPaciente { get; private set; }
     public Paciente Paciente { get; private set; } = null!;
 
-    public int IdMedico { get; set; }
+    public int IdMedico { get; private set; }
     public Medico Medico { get; private set; } = null!;
 
-    public int IdConsultorio { get; set; }
+    public int IdConsultorio { get; private set; }
     public Consultorio Consultorio { get; private set; } = null!;
 
     protected Turno() { }
 
-    public Turno(DateTime horario, Paciente paciente, Medico medico, Consultorio consultorio)
+    public Turno(DateTime horaInicio, Paciente paciente, Medico medico, Consultorio consultorio)
     {
-        if (horario <= DateTime.Now)
-            throw new ArgumentException("El horario del turno debe ser una fecha futura.", nameof(horario));
+        if (horaInicio <= DateTime.Now)
+            throw new ArgumentException("La hora de inicio debe ser una fecha futura.", nameof(horaInicio));
 
-        Horario = horario;
+        HoraInicio = horaInicio;
+        CalcularHoraFin();
+
         Paciente = paciente ?? throw new ArgumentNullException(nameof(paciente));
         Medico = medico ?? throw new ArgumentNullException(nameof(medico));
         Consultorio = consultorio ?? throw new ArgumentNullException(nameof(consultorio));
@@ -36,36 +39,31 @@ public class Turno
         IdPaciente = paciente.IdPersona;
         IdMedico = medico.IdPersona;
         IdConsultorio = consultorio.IdConsultorio;
-        Estado = "Pendiente";
     }
 
-    public void Reagendar(DateTime nuevoHorario)
+    private void CalcularHoraFin()
     {
-        if (nuevoHorario <= DateTime.Now)
-        {
-            throw new InvalidOperationException("No se puede reagendar un turno a una fecha u hora pasada.");
-        }
-
-        Horario = nuevoHorario;
-        Estado = "Reagendado";
+        HoraFin = HoraInicio.AddMinutes(20); // Duración fija definida en diagramaSecuencia.md
     }
 
-    public void CambiarEstado(string nuevoEstado)
+    public void Reagendar(DateTime nuevaHoraInicio)
     {
-        if (string.IsNullOrWhiteSpace(nuevoEstado))
-        {
-            throw new ArgumentException("El nuevo estado no puede estar vacío.", nameof(nuevoEstado));
-        }
+        if (nuevaHoraInicio <= DateTime.Now)
+            throw new InvalidOperationException("No se puede reagendar a una fecha pasada.");
 
+        HoraInicio = nuevaHoraInicio;
+        CalcularHoraFin();
+        Estado = EstadoTurno.Pendiente;
+    }
+
+    public void CambiarEstado(EstadoTurno nuevoEstado)
+    {
         Estado = nuevoEstado;
     }
 
-    public bool EsSolapadoCon(DateTime horarioComparar)
+    public bool EsSolapadoCon(Turno otroTurno)
     {
-        // Se asume un bloque estándar de consulta de 30 minutos
-        var finTurnoActual = Horario.AddMinutes(30);
-        var finTurnoComparar = horarioComparar.AddMinutes(30);
-
-        return Horario < finTurnoComparar && horarioComparar < finTurnoActual;
+        if (otroTurno == null) return false;
+        return HoraInicio < otroTurno.HoraFin && otroTurno.HoraInicio < HoraFin;
     }
 }

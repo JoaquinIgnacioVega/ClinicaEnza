@@ -35,6 +35,6 @@ public class Consultorio
     public bool EstaDisponibleEn(DateTime horario)
     {
         // Un consultorio no está disponible si ya existe un turno activo en ese horario exacto
-        return !Turnos.Any(t => t.Horario == horario && t.Estado != "Cancelado");
+        return !Turnos.Any(t => t.HoraInicio == horario && t.Estado != EstadoTurno.Cancelado);
     }
 }

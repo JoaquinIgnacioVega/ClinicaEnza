@@ -51,14 +51,19 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.Property(e => e.Legajo).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Rol).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Rol).IsRequired();
             entity.Property(e => e.FechaInicio).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(e => e.Medico)
+                  .WithOne()
+                  .HasForeignKey<Usuario>(e => e.IdMedico)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Medico>(entity =>
         {
             entity.Property(e => e.Matricula).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Especialidad).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Especialidad).IsRequired();
 
             entity.HasIndex(e => e.Matricula).IsUnique();
         });
@@ -66,9 +71,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Paciente>(entity =>
         {
             entity.Property(e => e.ObraSocial).HasMaxLength(100);
-
-            entity.Property(e => e.Peso).HasColumnType("TEXT");
-            entity.Property(e => e.Altura).HasColumnType("TEXT");
         });
 
         modelBuilder.Entity<HistoriaClinica>(entity =>
@@ -88,6 +90,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.IdPrescripcion);
 
             entity.Property(e => e.Medicamento).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Fecha).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(e => e.HistoriaClinica)
                   .WithMany(h => h.Prescripciones)
@@ -114,11 +117,12 @@ public class AppDbContext : DbContext
             entity.ToTable("Turnos");
             entity.HasKey(e => e.IdTurno);
 
-            entity.Property(e => e.Horario).IsRequired();
-            entity.Property(e => e.Estado).IsRequired().HasMaxLength(50).HasDefaultValue("Pendiente");
+            entity.Property(e => e.HoraInicio).IsRequired();
+            entity.Property(e => e.HoraFin).IsRequired();
+            entity.Property(e => e.Estado).IsRequired();
 
-            entity.HasIndex(e => new { e.IdMedico, e.Horario });
-            entity.HasIndex(e => new { e.IdConsultorio, e.Horario });
+            entity.HasIndex(e => new { e.IdMedico, e.HoraInicio });
+            entity.HasIndex(e => new { e.IdConsultorio, e.HoraInicio });
 
             entity.HasOne(e => e.Paciente)
                   .WithMany(p => p.Turnos)
