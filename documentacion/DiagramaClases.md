@@ -1,7 +1,6 @@
 # Diagrama de clases - Clínica Enza
 
-Este diagrama representa las principales clases del sistema de gestión
-de turnos e historias clínicas de Clínica Enza.
+Este diagrama representa las principales clases del sistema de gestión de turnos e historias clínicas de Clínica Enza.
 
 ```mermaid
 classDiagram
@@ -58,6 +57,17 @@ classDiagram
         -CalcularHoraFin() void
     }
 
+    class HorarioAtencion {
+        -int idHorarioAtencion
+        -DayOfWeek diaSemana
+        -TimeSpan horaDesde
+        -TimeSpan horaHasta
+        -Medico medico
+        -Consultorio consultorio
+        +IncluyeHorario(DateTime horario) bool
+        +EsSolapadoCon(HorarioAtencion otroHorario) bool
+    }
+
     class HistoriaClinica {
         -int idHistoriaClinica
         +AgregarPrescripcion(PrescripcionMedica prescripcion) void
@@ -85,8 +95,7 @@ classDiagram
     class EstadoTurno {
         <<enumeration>>
         Pendiente
-        Confirmado
-        Atendido
+        Realizado
         Cancelado
     }
 
@@ -115,11 +124,49 @@ classDiagram
 
     Paciente "1" --> "0..*" Turno
     Medico "1" --> "0..*" Turno
-    Turno "0..*" --> "1" Consultorio
+    Consultorio "1" --> "0..*" Turno
 
-    Usuario "0..1" --> "0..1" Medico : cuenta asociada
+    Medico "1" --> "0..*" HorarioAtencion
+    Consultorio "1" --> "0..*" HorarioAtencion
 
     Turno --> EstadoTurno
     Usuario --> RolUsuario
     Medico --> Especialidad
 ```
+
+## Enumeraciones
+
+### EstadoTurno
+
+Representa el estado actual de un turno:
+
+* `Pendiente`: el turno fue agendado y todavía no fue atendido.
+* `Realizado`: el paciente fue atendido.
+* `Cancelado`: el turno fue cancelado.
+
+### RolUsuario
+
+Define el rol de un usuario dentro del sistema:
+
+* `Administrador`
+* `Recepcionista`
+* `Medico`
+
+### Especialidad
+
+Define la especialidad de un médico:
+
+* `Clinica`
+* `Pediatria`
+* `Cardiologia`
+* `Dermatologia`
+
+## Consideraciones del modelo
+
+Los turnos tienen una duración fija de 20 minutos. Al establecer `horaInicio`, el sistema calcula automáticamente `horaFin`.
+
+`HorarioAtencion` representa la configuración semanal de atención de un médico. Cada horario establece el día de la semana, la franja horaria y el consultorio asignado.
+
+Al crear un turno, el consultorio no es seleccionado manualmente por recepción. El sistema obtiene el consultorio correspondiente a partir del `HorarioAtencion` del médico y lo almacena también en el `Turno`.
+
+Esto permite conservar el consultorio asignado al turno incluso si posteriormente se modifica la configuración semanal del médico.
