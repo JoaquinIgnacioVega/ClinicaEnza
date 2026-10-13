@@ -9,8 +9,7 @@ namespace ClinicaEnza.Domain
     public enum EstadoTurno
     {
         Pendiente,
-        Confirmado,
-        Atendido,
+        Realizado,
         Cancelado
     }
 

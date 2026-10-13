@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<PrescripcionMedica> PrescripcionesMedicas { get; set; } = null!;
     public DbSet<Consultorio> Consultorios { get; set; } = null!;
     public DbSet<Turno> Turnos { get; set; } = null!;
+    public DbSet<HorarioAtencion> HorariosAtencion { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -138,6 +139,27 @@ public class AppDbContext : DbContext
                   .WithMany(c => c.Turnos)
                   .HasForeignKey(e => e.IdConsultorio)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<HorarioAtencion>(entity =>
+        {
+            entity.ToTable("HorariosAtencion");
+            entity.HasKey(e => e.IdHorarioAtencion);
+
+            entity.Property(e => e.DiaSemana).IsRequired();
+            entity.Property(e => e.HoraDesde).IsRequired();
+            entity.Property(e => e.HoraHasta).IsRequired();
+
+            entity.HasOne(e => e.Medico)
+                  .WithMany()
+                  .HasForeignKey(e => e.IdMedico)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación con Consultorio (Muchos horarios pertenecen a 1 Consultorio)
+            entity.HasOne(e => e.Consultorio)
+                  .WithMany()
+                  .HasForeignKey(e => e.IdConsultorio)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

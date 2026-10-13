@@ -15,9 +15,8 @@ namespace ClinicaEnza.Tests
         private Consultorio CrearConsultorioMock() =>
             new Consultorio("102", 1, "Ala Norte");
 
-        // Caso normal: Creación de turno calcula automáticamente la duración de 20 minutos
         [Fact]
-        public void Turno_CasoNormal_DebeCalcularHoraFinA20Minutos()
+        public void CrearTurno_CalculaDuracion20Minutos()
         {
             var horaInicio = DateTime.Now.AddDays(1);
 
@@ -28,9 +27,8 @@ namespace ClinicaEnza.Tests
             Assert.Equal(EstadoTurno.Pendiente, turno.Estado);
         }
 
-        // Caso borde: Verificar turnos contiguos (No deben considerarse solapados)
         [Fact]
-        public void Turno_CasoBorde_TurnosConsecutivos_NoDebeExistirSolapamiento()
+        public void EsSolapadoCon_TurnosConsecutivos_RetornaFalse()
         {
             var horaBase = DateTime.Now.AddDays(1);
             var turno1 = new Turno(horaBase, CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
@@ -41,9 +39,8 @@ namespace ClinicaEnza.Tests
             Assert.False(estaSolapado);
         }
 
-        // Caso de error: Intentar reagendar un turno a una fecha/hora del pasado
         [Fact]
-        public void Turno_CasoError_ReagendarAFechaPasada_DebeLanzarInvalidOperationException()
+        public void Reagendar_FechaPasada_LanzaExcepcion()
         {
             var turno = new Turno(DateTime.Now.AddDays(2), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
 
