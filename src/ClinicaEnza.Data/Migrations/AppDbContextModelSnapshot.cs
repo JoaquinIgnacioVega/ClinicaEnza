@@ -58,6 +58,36 @@ namespace ClinicaEnza.Data.Migrations
                     b.ToTable("HistoriasClinicas", (string)null);
                 });
 
+            modelBuilder.Entity("ClinicaEnza.Domain.HorarioAtencion", b =>
+                {
+                    b.Property<int>("IdHorarioAtencion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<TimeSpan>("HoraDesde")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan>("HoraHasta")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("IdConsultorio")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("IdMedico")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("IdHorarioAtencion");
+
+                    b.HasIndex("IdConsultorio");
+
+                    b.HasIndex("IdMedico");
+
+                    b.ToTable("HorariosAtencion", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaEnza.Domain.Persona", b =>
                 {
                     b.Property<int>("IdPersona")
@@ -250,6 +280,25 @@ namespace ClinicaEnza.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("ClinicaEnza.Domain.HorarioAtencion", b =>
+                {
+                    b.HasOne("ClinicaEnza.Domain.Consultorio", "Consultorio")
+                        .WithMany()
+                        .HasForeignKey("IdConsultorio")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaEnza.Domain.Medico", "Medico")
+                        .WithMany()
+                        .HasForeignKey("IdMedico")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Consultorio");
+
+                    b.Navigation("Medico");
                 });
 
             modelBuilder.Entity("ClinicaEnza.Domain.PrescripcionMedica", b =>
