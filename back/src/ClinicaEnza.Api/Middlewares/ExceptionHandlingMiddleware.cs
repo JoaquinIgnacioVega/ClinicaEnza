@@ -40,6 +40,11 @@ public class ExceptionHandlingMiddleware
                 mensaje = ex.Message;
                 break;
 
+            case HorarioAtencionSuperpuestoException ex:
+                statusCode = HttpStatusCode.Conflict;
+                mensaje = ex.Message;
+                break;
+
             case ReglaDeNegocioException ex:
                 statusCode = HttpStatusCode.BadRequest;
                 mensaje = ex.Message;
