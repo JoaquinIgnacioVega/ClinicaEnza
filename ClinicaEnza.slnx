@@ -1,8 +1,17 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/ClinicaEnza.Data/ClinicaEnza.Data.csproj" />
-    <Project Path="src/ClinicaEnza.Desktop/ClinicaEnza.Desktop.csproj" />
-    <Project Path="src/ClinicaEnza.Domain/ClinicaEnza.Domain.csproj" />
-    <Project Path="src/ClinicaEnza.Tests/ClinicaEnza.Tests.csproj" />
+  <Folder Name="/back/">
+    <Project Path="back/src/ClinicaEnza.Api/ClinicaEnza.Api.csproj" />
+    <Project Path="back/src/ClinicaEnza.Application/ClinicaEnza.Application.csproj" />
+    <Project Path="back/src/ClinicaEnza.Domain/ClinicaEnza.Domain.csproj" />
+    <Project Path="back/src/ClinicaEnza.Infrastructure/ClinicaEnza.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/front/">
+    <Project Path="front/ClinicaEnza.Front.esproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ClinicaEnza.Tests/ClinicaEnza.Tests.csproj" />
   </Folder>
 </Solution>

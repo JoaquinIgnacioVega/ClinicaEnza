@@ -1,0 +1,6 @@
+@ClinicaEnza.Api_HostAddress = http://localhost:5207
+
+GET {{ClinicaEnza.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
