@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: clinica_enza_backend
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/clinica_enza.db
+    volumes:
+      - clinica_data:/app/data
+    networks:
+      - clinica-network
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: clinica_enza_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - clinica-network
+
+volumes:
+  clinica_data:
+
+networks:
+  clinica-network:
+    driver: bridge
