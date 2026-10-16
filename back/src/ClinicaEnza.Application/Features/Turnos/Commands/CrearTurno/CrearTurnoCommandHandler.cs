@@ -45,31 +45,24 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
 
         var horaFinEstimada = request.HoraInicio.AddMinutes(20);
 
-        // Validar superposición de turnos para el médico
         var superpuestosMedico = await _turnoRepository.ObtenerSuperpuestosAsync(
             request.IdMedico, request.HoraInicio, horaFinEstimada, null, cancellationToken);
 
         if (superpuestosMedico.Any())
-        {
             throw new TurnoSuperpuestoException(request.IdMedico, request.HoraInicio);
-        }
 
-        // Validar disponibilidad del consultorio
         var superpuestosConsultorio = await _turnoRepository.ObtenerSuperpuestosConsultorioAsync(
             request.IdConsultorio, request.HoraInicio, horaFinEstimada, null, cancellationToken);
 
         if (superpuestosConsultorio.Any())
-        {
             return Result.Failure<TurnoDto>($"El consultorio '{consultorio.Numero}' ya se encuentra ocupado en ese horario.");
-        }
 
-        // Crear el turno con la lógica de dominio
         var nuevoTurno = new Turno(request.HoraInicio, paciente, medico, consultorio);
 
         await _turnoRepository.AddAsync(nuevoTurno, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var dto = new TurnoDto
+        return Result.Success(new TurnoDto
         {
             IdTurno = nuevoTurno.IdTurno,
             HoraInicio = nuevoTurno.HoraInicio,
@@ -81,9 +74,6 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
             NombreMedico = medico.ObtenerNombreCompleto(),
             IdConsultorio = consultorio.IdConsultorio,
             NumeroConsultorio = consultorio.Numero
-        };
-
-        return Result.Success(dto);
+        });
     }
 }
-

@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<ITurnoRepository, TurnoRepository>();
+        services.AddScoped<IHorarioAtencionRepository, HorarioAtencionRepository>();
         services.AddScoped<IPacienteRepository, PacienteRepository>();
 
         return services;
