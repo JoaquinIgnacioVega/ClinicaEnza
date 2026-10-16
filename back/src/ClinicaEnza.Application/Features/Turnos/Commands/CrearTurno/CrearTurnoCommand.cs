@@ -7,7 +7,6 @@ namespace ClinicaEnza.Application.Features.Turnos.Commands.CrearTurno;
 public record CrearTurnoCommand(
     int IdPaciente,
     int IdMedico,
-    int IdConsultorio,
     DateTime HoraInicio
 ) : IRequest<Result<TurnoDto>>;
 

@@ -12,20 +12,20 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
     private readonly ITurnoRepository _turnoRepository;
     private readonly IRepository<Paciente> _pacienteRepository;
     private readonly IRepository<Medico> _medicoRepository;
-    private readonly IRepository<Consultorio> _consultorioRepository;
+    private readonly IHorarioAtencionRepository _horarioRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CrearTurnoCommandHandler(
         ITurnoRepository turnoRepository,
         IRepository<Paciente> pacienteRepository,
         IRepository<Medico> medicoRepository,
-        IRepository<Consultorio> consultorioRepository,
+        IHorarioAtencionRepository horarioRepository,
         IUnitOfWork unitOfWork)
     {
         _turnoRepository = turnoRepository;
         _pacienteRepository = pacienteRepository;
         _medicoRepository = medicoRepository;
-        _consultorioRepository = consultorioRepository;
+        _horarioRepository = horarioRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -39,41 +39,63 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
         if (medico == null)
             return Result.Failure<TurnoDto>($"No se encontró el médico con ID {request.IdMedico}.");
 
-        var consultorio = await _consultorioRepository.GetByIdAsync(request.IdConsultorio, cancellationToken);
-        if (consultorio == null)
-            return Result.Failure<TurnoDto>($"No se encontró el consultorio con ID {request.IdConsultorio}.");
-
         var horaFinEstimada = request.HoraInicio.AddMinutes(20);
+        var horario = await _horarioRepository.ObtenerPorMedicoYHorarioAsync(
+            request.IdMedico,
+            request.HoraInicio.DayOfWeek,
+            request.HoraInicio.TimeOfDay,
+            horaFinEstimada.TimeOfDay,
+            cancellationToken);
 
-        var superpuestosMedico = await _turnoRepository.ObtenerSuperpuestosAsync(
-            request.IdMedico, request.HoraInicio, horaFinEstimada, null, cancellationToken);
-
-        if (superpuestosMedico.Any())
-            throw new TurnoSuperpuestoException(request.IdMedico, request.HoraInicio);
-
-        var superpuestosConsultorio = await _turnoRepository.ObtenerSuperpuestosConsultorioAsync(
-            request.IdConsultorio, request.HoraInicio, horaFinEstimada, null, cancellationToken);
-
-        if (superpuestosConsultorio.Any())
-            return Result.Failure<TurnoDto>($"El consultorio '{consultorio.Numero}' ya se encuentra ocupado en ese horario.");
-
-        var nuevoTurno = new Turno(request.HoraInicio, paciente, medico, consultorio);
-
-        await _turnoRepository.AddAsync(nuevoTurno, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result.Success(new TurnoDto
+        if (horario == null)
         {
-            IdTurno = nuevoTurno.IdTurno,
-            HoraInicio = nuevoTurno.HoraInicio,
-            HoraFin = nuevoTurno.HoraFin,
-            Estado = nuevoTurno.Estado,
-            IdPaciente = paciente.IdPersona,
-            NombrePaciente = paciente.ObtenerNombreCompleto(),
-            IdMedico = medico.IdPersona,
-            NombreMedico = medico.ObtenerNombreCompleto(),
-            IdConsultorio = consultorio.IdConsultorio,
-            NumeroConsultorio = consultorio.Numero
-        });
+            return Result.Failure<TurnoDto>(
+                $"El médico con ID {request.IdMedico} no tiene un horario de atención que incluya la fecha y hora solicitadas.");
+        }
+
+        var consultorio = horario.Consultorio;
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var superpuestosMedico = await _turnoRepository.ObtenerSuperpuestosAsync(
+                request.IdMedico, request.HoraInicio, horaFinEstimada, null, cancellationToken);
+
+            if (superpuestosMedico.Any())
+                throw new TurnoSuperpuestoException(request.IdMedico, request.HoraInicio);
+
+            var superpuestosConsultorio = await _turnoRepository.ObtenerSuperpuestosConsultorioAsync(
+                horario.IdConsultorio, request.HoraInicio, horaFinEstimada, null, cancellationToken);
+
+            if (superpuestosConsultorio.Any())
+            {
+                throw new TurnoSuperpuestoException(
+                    $"El consultorio '{consultorio.Numero}' ya se encuentra ocupado en ese horario.");
+            }
+
+            var nuevoTurno = new Turno(request.HoraInicio, paciente, medico, consultorio);
+            await _turnoRepository.AddAsync(nuevoTurno, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
+            return Result.Success(new TurnoDto
+            {
+                IdTurno = nuevoTurno.IdTurno,
+                HoraInicio = nuevoTurno.HoraInicio,
+                HoraFin = nuevoTurno.HoraFin,
+                Estado = nuevoTurno.Estado,
+                IdPaciente = paciente.IdPersona,
+                NombrePaciente = paciente.ObtenerNombreCompleto(),
+                IdMedico = medico.IdPersona,
+                NombreMedico = medico.ObtenerNombreCompleto(),
+                IdConsultorio = consultorio.IdConsultorio,
+                NumeroConsultorio = consultorio.Numero
+            });
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+            throw;
+        }
     }
 }

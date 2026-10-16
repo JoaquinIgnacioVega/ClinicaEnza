@@ -14,6 +14,24 @@ public class HorarioAtencionRepository : IHorarioAtencionRepository
         _context = context;
     }
 
+    public async Task<HorarioAtencion?> ObtenerPorMedicoYHorarioAsync(
+        int idMedico,
+        DayOfWeek diaSemana,
+        TimeSpan hora,
+        TimeSpan horaFin,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.HorariosAtencion
+            .AsNoTracking()
+            .Include(h => h.Medico)
+            .Include(h => h.Consultorio)
+            .Where(h => h.IdMedico == idMedico
+                && h.DiaSemana == diaSemana
+                && h.HoraDesde <= hora
+                && horaFin <= h.HoraHasta)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<HorarioAtencion>> ObtenerPorMedicoAsync(
         int idMedico,
         CancellationToken cancellationToken = default)
