@@ -10,5 +10,6 @@ public interface IUsuarioRepository : IRepository<Usuario>
     Task<bool> ExisteDniAsync(string dni, CancellationToken cancellationToken = default);
     Task<bool> ExisteMailAsync(string mail, CancellationToken cancellationToken = default);
     Task<bool> ExisteLegajoAsync(string legajo, CancellationToken cancellationToken = default);
+    Task<bool> ExisteMailParaOtraPersonaAsync(string mail, int idPersonaExcluir, CancellationToken cancellationToken = default);
 }
 
