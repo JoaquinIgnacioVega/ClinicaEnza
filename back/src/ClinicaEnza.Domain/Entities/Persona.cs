@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +22,8 @@ namespace ClinicaEnza.Domain
             if (string.IsNullOrWhiteSpace(nombre)) throw new ArgumentException("El nombre no puede estar vacío.", nameof(nombre));
             if (string.IsNullOrWhiteSpace(apellido)) throw new ArgumentException("El apellido no puede estar vacío.", nameof(apellido));
             if (string.IsNullOrWhiteSpace(dni)) throw new ArgumentException("El DNI no puede estar vacío.", nameof(dni));
+            if (string.IsNullOrWhiteSpace(mail)) throw new ArgumentException("El correo electrónico no puede estar vacío.", nameof(mail));
+            if (fechaNacimiento == default) throw new ArgumentException("La fecha de nacimiento no es válida.", nameof(fechaNacimiento));
 
             Nombre = nombre;
             Apellido = apellido;

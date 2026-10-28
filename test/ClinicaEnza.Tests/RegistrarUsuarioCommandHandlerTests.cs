@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -167,7 +167,8 @@ public class RegistrarUsuarioCommandHandlerTests
             new DateTime(1975, 11, 3),
             "andrea@clinicaenza.com",
             Especialidad.Cardiologia,
-            "MP-8899")
+            "MP-8899",
+            new DateTime(2010, 3, 1))
         {
             IdPersona = 5
         };
@@ -280,6 +281,7 @@ public class RegistrarUsuarioCommandHandlerTests
     private class FakeUnitOfWork : IUnitOfWork
     {
         public IUsuarioRepository Usuarios { get; }
+        public IMedicoRepository Medicos { get; } = new FakeMedicoRepository();
         public int SaveChangesCallCount { get; private set; }
         public int CommitCallCount { get; private set; }
         public int RollbackCallCount { get; private set; }
@@ -328,7 +330,7 @@ public class RegistrarUsuarioCommandHandlerTests
             hashedPassword == $"hashed_{providedPassword}";
     }
 
-    private class FakeMedicoRepository : IRepository<Medico>
+    private class FakeMedicoRepository : IMedicoRepository
     {
         public List<Medico> Medicos { get; } = new();
 
@@ -349,6 +351,12 @@ public class RegistrarUsuarioCommandHandlerTests
 
         public void Update(Medico entity) { }
         public void Delete(Medico entity) => Medicos.Remove(entity);
+
+        public Task<bool> ExisteMatriculaAsync(string matricula, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Medicos.Any(m => string.Equals(m.Matricula, matricula, StringComparison.OrdinalIgnoreCase)));
+
+        public Task<bool> ExisteDniAsync(string dni, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Medicos.Any(m => string.Equals(m.Dni, dni, StringComparison.OrdinalIgnoreCase)));
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,15 +16,24 @@ namespace ClinicaEnza.Domain
 
         protected Medico() { }
 
-        public Medico(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, Especialidad especialidad, string matricula)
+        public Medico(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, Especialidad especialidad, string matricula, DateTime fechaInicio)
             : base(nombre, apellido, dni, fechaNacimiento, mail)
         {
             if (string.IsNullOrWhiteSpace(matricula))
                 throw new ArgumentException("La matrícula es obligatoria.", nameof(matricula));
+            if (!Enum.IsDefined(typeof(Especialidad), especialidad))
+                throw new ArgumentException("La especialidad no es válida.", nameof(especialidad));
+            if (fechaInicio == default)
+                throw new ArgumentException("La fecha de inicio es obligatoria.", nameof(fechaInicio));
 
             Especialidad = especialidad;
             Matricula = matricula;
-            FechaInicio = DateTime.Now;
+            FechaInicio = fechaInicio;
+        }
+
+        public Medico(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, Especialidad especialidad, string matricula)
+            : this(nombre, apellido, dni, fechaNacimiento, mail, especialidad, matricula, DateTime.Today)
+        {
         }
 
         public string ObtenerFichaProfesional()

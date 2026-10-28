@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IHorarioAtencionRepository, HorarioAtencionRepository>();
         services.AddScoped<IPacienteRepository, PacienteRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IMedicoRepository, MedicoRepository>();
 
         // Servicios de infraestructura
         services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -34,4 +35,3 @@ public static class DependencyInjection
         return services;
     }
 }
-
