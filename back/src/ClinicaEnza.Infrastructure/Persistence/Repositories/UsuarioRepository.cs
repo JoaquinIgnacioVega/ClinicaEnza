@@ -40,5 +40,12 @@ public class UsuarioRepository : Repository<Usuario>, IUsuarioRepository
     {
         return await _dbSet.AnyAsync(u => u.Legajo == legajo, cancellationToken);
     }
+
+    public async Task<bool> ExisteMailParaOtraPersonaAsync(string mail, int idPersonaExcluir, CancellationToken cancellationToken = default)
+    {
+        return await _context.Personas.AnyAsync(
+            p => p.Mail.ToLower() == mail.ToLower() && p.IdPersona != idPersonaExcluir,
+            cancellationToken);
+    }
 }
 

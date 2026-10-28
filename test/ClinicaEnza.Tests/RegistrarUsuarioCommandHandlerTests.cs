@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,17 +16,17 @@ namespace ClinicaEnza.Tests;
 public class RegistrarUsuarioCommandHandlerTests
 {
     private readonly FakeUsuarioRepository _usuarioRepository;
+    private readonly FakeMedicoRepository _medicoRepository;
     private readonly FakeUnitOfWork _unitOfWork;
     private readonly FakePasswordHasher _passwordHasher;
-    private readonly FakeMedicoRepository _medicoRepository;
     private readonly RegistrarUsuarioCommandHandler _handler;
 
     public RegistrarUsuarioCommandHandlerTests()
     {
         _usuarioRepository = new FakeUsuarioRepository();
-        _unitOfWork = new FakeUnitOfWork(_usuarioRepository);
-        _passwordHasher = new FakePasswordHasher();
         _medicoRepository = new FakeMedicoRepository();
+        _unitOfWork = new FakeUnitOfWork(_usuarioRepository, _medicoRepository);
+        _passwordHasher = new FakePasswordHasher();
 
         _handler = new RegistrarUsuarioCommandHandler(
             _usuarioRepository,
@@ -167,8 +167,7 @@ public class RegistrarUsuarioCommandHandlerTests
             new DateTime(1975, 11, 3),
             "andrea@clinicaenza.com",
             Especialidad.Cardiologia,
-            "MP-8899",
-            new DateTime(2010, 3, 1))
+            "MP-8899")
         {
             IdPersona = 5
         };
@@ -256,6 +255,12 @@ public class RegistrarUsuarioCommandHandlerTests
             return Task.FromResult(existe);
         }
 
+        public Task<bool> ExisteMailParaOtraPersonaAsync(string mail, int idPersonaExcluir, CancellationToken cancellationToken = default)
+        {
+            var existe = Usuarios.Any(u => string.Equals(u.Mail, mail, StringComparison.OrdinalIgnoreCase) && u.IdPersona != idPersonaExcluir);
+            return Task.FromResult(existe);
+        }
+
         public Task<Usuario?> ObtenerPorDniAsync(string dni, CancellationToken cancellationToken = default) =>
             Task.FromResult(Usuarios.FirstOrDefault(u => string.Equals(u.Dni, dni, StringComparison.OrdinalIgnoreCase)));
 
@@ -281,16 +286,17 @@ public class RegistrarUsuarioCommandHandlerTests
     private class FakeUnitOfWork : IUnitOfWork
     {
         public IUsuarioRepository Usuarios { get; }
-        public IMedicoRepository Medicos { get; } = new FakeMedicoRepository();
+        public IMedicoRepository Medicos { get; }
         public int SaveChangesCallCount { get; private set; }
         public int CommitCallCount { get; private set; }
         public int RollbackCallCount { get; private set; }
         public int BeginCallCount { get; private set; }
         public bool ThrowOnSave { get; set; }
 
-        public FakeUnitOfWork(IUsuarioRepository usuarioRepository)
+        public FakeUnitOfWork(IUsuarioRepository usuarioRepository, IMedicoRepository medicoRepository)
         {
             Usuarios = usuarioRepository;
+            Medicos = medicoRepository;
         }
 
         public Task BeginTransactionAsync(CancellationToken cancellationToken = default)
@@ -361,3 +367,4 @@ public class RegistrarUsuarioCommandHandlerTests
 
     #endregion
 }
+
