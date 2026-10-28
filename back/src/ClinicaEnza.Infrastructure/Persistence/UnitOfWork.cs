@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;
     private IUsuarioRepository? _usuarioRepository;
+    private IMedicoRepository? _medicoRepository;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -17,6 +18,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     }
 
     public IUsuarioRepository Usuarios => _usuarioRepository ??= new UsuarioRepository(_context);
+    public IMedicoRepository Medicos => _medicoRepository ??= new MedicoRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -84,4 +86,3 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         }
     }
 }
-

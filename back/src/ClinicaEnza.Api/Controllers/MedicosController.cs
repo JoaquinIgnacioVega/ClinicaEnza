@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Medicos.Commands.RegistrarMedico;
 using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,5 +27,16 @@ public class MedicosController : ControllerBase
 
         return Ok(result.Value);
     }
-}
 
+    [HttpPost]
+    public async Task<IActionResult> Registrar(
+        [FromBody] RegistrarMedicoCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+            return BadRequest(new { error = result.Error });
+
+        return Created($"/api/medicos/{result.Value.IdMedico}", result.Value);
+    }
+}
