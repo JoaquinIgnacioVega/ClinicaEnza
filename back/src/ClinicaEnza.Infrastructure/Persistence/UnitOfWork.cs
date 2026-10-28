@@ -1,5 +1,6 @@
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
 using ClinicaEnza.Infrastructure.Persistence.Context;
+using ClinicaEnza.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace ClinicaEnza.Infrastructure.Persistence;
@@ -8,11 +9,14 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
 {
     private readonly AppDbContext _context;
     private IDbContextTransaction? _transaction;
+    private IUsuarioRepository? _usuarioRepository;
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
+
+    public IUsuarioRepository Usuarios => _usuarioRepository ??= new UsuarioRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
