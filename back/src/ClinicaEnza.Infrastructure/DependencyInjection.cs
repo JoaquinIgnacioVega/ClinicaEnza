@@ -1,7 +1,9 @@
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
+using ClinicaEnza.Application.Common.Interfaces.Services;
 using ClinicaEnza.Infrastructure.Persistence;
 using ClinicaEnza.Infrastructure.Persistence.Context;
 using ClinicaEnza.Infrastructure.Persistence.Repositories;
+using ClinicaEnza.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,10 @@ public static class DependencyInjection
         services.AddScoped<ITurnoRepository, TurnoRepository>();
         services.AddScoped<IHorarioAtencionRepository, HorarioAtencionRepository>();
         services.AddScoped<IPacienteRepository, PacienteRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+
+        // Servicios de infraestructura
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
     }

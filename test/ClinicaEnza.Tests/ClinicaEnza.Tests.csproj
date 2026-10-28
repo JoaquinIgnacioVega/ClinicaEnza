@@ -21,6 +21,8 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\back\src\ClinicaEnza.Domain\ClinicaEnza.Domain.csproj" />
+		<ProjectReference Include="..\..\back\src\ClinicaEnza.Application\ClinicaEnza.Application.csproj" />
 	</ItemGroup>
 
+</Project>
 </Project>
