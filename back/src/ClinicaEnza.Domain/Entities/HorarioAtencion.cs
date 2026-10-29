@@ -46,6 +46,12 @@ public class HorarioAtencion
         IdConsultorio = idConsultorio;
     }
 
+    public void AsignarConsultorio(Consultorio consultorio)
+    {
+        Consultorio = consultorio ?? throw new ArgumentNullException(nameof(consultorio));
+        IdConsultorio = consultorio.IdConsultorio;
+    }
+
     public bool IncluyeHorario(DateTime horario)
     {
         if (horario.DayOfWeek != DiaSemana)

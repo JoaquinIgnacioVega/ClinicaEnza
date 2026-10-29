@@ -10,7 +10,7 @@ namespace ClinicaEnza.Tests
             new Medico("Esteban", "Quito", "11223344", DateTime.Today.AddYears(-40), "esteban@test.com", Especialidad.Clinica, "MP-8888");
 
         private Consultorio CrearConsultorioMock() =>
-            new Consultorio("101", 1, "Ala Norte");
+            new Consultorio("101", 1, "Ala Norte") { IdConsultorio = 1 };
 
         [Fact]
         public void IncluyeHorario_EnRango_RetornaTrue()
@@ -74,6 +74,39 @@ namespace ClinicaEnza.Tests
                     1
                 )
             );
+        }
+
+        [Fact]
+        public void AsignarConsultorio_ConsultorioValido_ActualizaIdYReferencia()
+        {
+            var horario = new HorarioAtencion(
+                DayOfWeek.Monday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock()
+            );
+
+            var nuevoConsultorio = new Consultorio("202", 2, "Ala Sur") { IdConsultorio = 5 };
+
+            horario.AsignarConsultorio(nuevoConsultorio);
+
+            Assert.Equal(5, horario.IdConsultorio);
+            Assert.Same(nuevoConsultorio, horario.Consultorio);
+        }
+
+        [Fact]
+        public void AsignarConsultorio_ConsultorioNulo_LanzaArgumentNullException()
+        {
+            var horario = new HorarioAtencion(
+                DayOfWeek.Monday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock()
+            );
+
+            Assert.Throws<ArgumentNullException>(() => horario.AsignarConsultorio(null!));
         }
 
         [Fact]
