@@ -36,13 +36,16 @@ public class HorarioAtencionRepository : IHorarioAtencionRepository
         int idMedico,
         CancellationToken cancellationToken = default)
     {
-        return await _context.HorariosAtencion
+        var horarios = await _context.HorariosAtencion
             .AsNoTracking()
             .Include(h => h.Medico)
             .Include(h => h.Consultorio)
             .Where(h => h.IdMedico == idMedico)
+            .ToListAsync(cancellationToken);
+
+        return horarios
             .OrderBy(h => h.DiaSemana)
             .ThenBy(h => h.HoraDesde)
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 }
