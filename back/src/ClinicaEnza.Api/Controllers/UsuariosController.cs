@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Usuarios.Commands.ModificarUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Commands.RegistrarUsuario;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,24 @@ public class UsuariosController : ControllerBase
         }
 
         return Created($"/api/usuarios/{result.Value.IdUsuario}", result.Value);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> ModificarUsuario(int id, [FromBody] ModificarUsuarioCommand command, CancellationToken cancellationToken)
+    {
+        command.IdUsuario = id;
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error != null && result.Error.Contains("No se encontró"))
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 }
 

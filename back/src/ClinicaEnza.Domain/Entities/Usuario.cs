@@ -69,6 +69,17 @@ namespace ClinicaEnza.Domain
         {
         }
 
+        public void ActualizarDatos(string nombre, string apellido, string mail, RolUsuario rol, int? idMedico)
+        {
+            ActualizarDatos(nombre, apellido, mail);
+
+            if (rol == RolUsuario.Medico && !idMedico.HasValue)
+                throw new ArgumentException("Un usuario con rol Médico debe estar asociado a un médico.", nameof(idMedico));
+
+            Rol = rol;
+            IdMedico = idMedico;
+        }
+
         public void ActualizarPasswordHash(string nuevoPasswordHash)
         {
             if (string.IsNullOrWhiteSpace(nuevoPasswordHash))

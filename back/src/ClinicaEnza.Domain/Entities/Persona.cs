@@ -37,6 +37,20 @@ namespace ClinicaEnza.Domain
             return $"{Apellido.ToUpper()}, {Nombre}";
         }
 
+        protected void ActualizarDatos(string nombre, string apellido, string mail)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ArgumentException("El nombre no puede estar vacío.", nameof(nombre));
+            if (string.IsNullOrWhiteSpace(apellido))
+                throw new ArgumentException("El apellido no puede estar vacío.", nameof(apellido));
+            if (string.IsNullOrWhiteSpace(mail))
+                throw new ArgumentException("El correo electrónico no puede estar vacío.", nameof(mail));
+
+            Nombre = nombre.Trim();
+            Apellido = apellido.Trim();
+            Mail = mail.Trim();
+        }
+
         public int CalcularEdad()
         {
             var hoy = DateTime.Today;
@@ -53,3 +67,4 @@ namespace ClinicaEnza.Domain
         public abstract string ObtenerIdentificacion();
     }
 }
+
