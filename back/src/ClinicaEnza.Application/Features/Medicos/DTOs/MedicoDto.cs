@@ -15,5 +15,11 @@ public class MedicoDto
     public Especialidad Especialidad { get; set; }
     public string EspecialidadNombre => Especialidad.ToString();
     public DateTime FechaInicio { get; set; }
-    public string FichaProfesional => $"Dr/a. {NombreCompleto} - MP: {Matricula} ({Especialidad})";
+
+    private string? _fichaProfesional;
+    public string FichaProfesional
+    {
+        get => _fichaProfesional ?? $"Dr/a. {NombreCompleto} - MP: {Matricula} ({Especialidad})";
+        set => _fichaProfesional = value;
+    }
 }

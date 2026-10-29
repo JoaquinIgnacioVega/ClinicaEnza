@@ -1,7 +1,9 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.Medicos.Commands.ModificarMedico;
 using ClinicaEnza.Application.Features.Medicos.Commands.RegistrarMedico;
+using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicoPorId;
 using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicos;
+using ClinicaEnza.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -18,12 +20,39 @@ public class MedicosController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ObtenerTodos(CancellationToken cancellationToken)
+    public async Task<IActionResult> ObtenerTodos(
+        [FromQuery] Especialidad? especialidad,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.SendAsync(new ObtenerMedicosQuery(), cancellationToken);
+        var result = await _mediator.SendAsync(new ObtenerMedicosQuery(especialidad), cancellationToken);
         if (result.IsFailure)
         {
             return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("especialidades")]
+    public IActionResult ObtenerEspecialidades()
+    {
+        var especialidades = Enum.GetValues<Especialidad>()
+            .Select(e => new
+            {
+                id = (int)e,
+                nombre = e.ToString()
+            });
+
+        return Ok(especialidades);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(new ObtenerMedicoPorIdQuery(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            return NotFound(new { error = result.Error });
         }
 
         return Ok(result.Value);
