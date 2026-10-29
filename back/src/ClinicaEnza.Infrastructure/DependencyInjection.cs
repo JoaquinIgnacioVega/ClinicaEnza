@@ -31,7 +31,9 @@ public static class DependencyInjection
 
         // Servicios de infraestructura
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         return services;
     }
 }
+
