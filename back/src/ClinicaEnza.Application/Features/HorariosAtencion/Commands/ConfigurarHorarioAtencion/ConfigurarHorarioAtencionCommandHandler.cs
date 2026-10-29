@@ -20,16 +20,19 @@ public class ConfigurarHorarioAtencionCommandHandler : IRequestHandler<Configura
         IRepository<Consultorio> consultorioRepository,
         IUnitOfWork unitOfWork)
     {
-        _horarioRepository = horarioRepository;
-        _medicoRepository = medicoRepository;
-        _consultorioRepository = consultorioRepository;
-        _unitOfWork = unitOfWork;
+        _horarioRepository = horarioRepository ?? throw new ArgumentNullException(nameof(horarioRepository));
+        _medicoRepository = medicoRepository ?? throw new ArgumentNullException(nameof(medicoRepository));
+        _consultorioRepository = consultorioRepository ?? throw new ArgumentNullException(nameof(consultorioRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public async Task<Result<HorarioAtencionDto>> Handle(
         ConfigurarHorarioAtencionCommand request,
         CancellationToken cancellationToken = default)
     {
+        if (request.HoraHasta <= request.HoraDesde)
+            return Result.Failure<HorarioAtencionDto>("La hora hasta debe ser posterior a la hora desde.");
+
         var medico = await _medicoRepository.GetByIdAsync(request.IdMedico, cancellationToken);
         if (medico == null)
             return Result.Failure<HorarioAtencionDto>($"No se encontró el médico con ID {request.IdMedico}.");

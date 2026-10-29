@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ClinicaEnza.Domain;
 
@@ -32,6 +32,18 @@ public class HorarioAtencion
 
         IdMedico = medico.IdPersona;
         IdConsultorio = consultorio.IdConsultorio;
+    }
+
+    public HorarioAtencion(DayOfWeek diaSemana, TimeSpan horaDesde, TimeSpan horaHasta, int idMedico, int idConsultorio)
+    {
+        if (horaHasta <= horaDesde)
+            throw new ArgumentException("La hora hasta debe ser posterior a la hora desde.", nameof(horaHasta));
+
+        DiaSemana = diaSemana;
+        HoraDesde = horaDesde;
+        HoraHasta = horaHasta;
+        IdMedico = idMedico;
+        IdConsultorio = idConsultorio;
     }
 
     public bool IncluyeHorario(DateTime horario)

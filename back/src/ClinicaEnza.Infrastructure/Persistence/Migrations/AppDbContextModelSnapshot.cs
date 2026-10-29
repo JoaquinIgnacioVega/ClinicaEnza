@@ -243,6 +243,14 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                 {
                     b.HasBaseType("ClinicaEnza.Domain.Persona");
 
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("FechaBaja")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("FechaInicio")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ClinicaEnza.Domain;
 using Xunit;
 
@@ -60,6 +60,82 @@ namespace ClinicaEnza.Tests
                     CrearConsultorioMock()
                 )
             );
+        }
+
+        [Fact]
+        public void Constructor_ConIds_HoraHastaMenorOIgualQueHoraDesde_LanzaExcepcion()
+        {
+            Assert.Throws<ArgumentException>(() =>
+                new HorarioAtencion(
+                    DayOfWeek.Monday,
+                    new TimeSpan(10, 0, 0),
+                    new TimeSpan(10, 0, 0),
+                    1,
+                    1
+                )
+            );
+        }
+
+        [Fact]
+        public void EsSolapadoCon_MismoDiaYRangoSuperpuesto_RetornaTrue()
+        {
+            var horario1 = new HorarioAtencion(
+                DayOfWeek.Wednesday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            var horario2 = new HorarioAtencion(
+                DayOfWeek.Wednesday,
+                new TimeSpan(10, 0, 0),
+                new TimeSpan(14, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            Assert.True(horario1.EsSolapadoCon(horario2));
+            Assert.True(horario2.EsSolapadoCon(horario1));
+        }
+
+        [Fact]
+        public void EsSolapadoCon_MismoDiaYRangosContiguos_RetornaFalse()
+        {
+            var horario1 = new HorarioAtencion(
+                DayOfWeek.Wednesday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            var horario2 = new HorarioAtencion(
+                DayOfWeek.Wednesday,
+                new TimeSpan(12, 0, 0),
+                new TimeSpan(16, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            Assert.False(horario1.EsSolapadoCon(horario2));
+            Assert.False(horario2.EsSolapadoCon(horario1));
+        }
+
+        [Fact]
+        public void EsSolapadoCon_DistintoDia_RetornaFalse()
+        {
+            var horario1 = new HorarioAtencion(
+                DayOfWeek.Monday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            var horario2 = new HorarioAtencion(
+                DayOfWeek.Tuesday,
+                new TimeSpan(8, 0, 0),
+                new TimeSpan(12, 0, 0),
+                CrearMedicoMock(),
+                CrearConsultorioMock());
+
+            Assert.False(horario1.EsSolapadoCon(horario2));
         }
     }
 }
