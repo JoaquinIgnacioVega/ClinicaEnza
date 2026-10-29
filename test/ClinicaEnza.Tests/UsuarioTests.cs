@@ -170,5 +170,54 @@ public class UsuarioTests
         // Act & Assert
         Assert.Throws<ArgumentException>(() => usuario.ActualizarPasswordHash(nuevoHashInvalido!));
     }
+
+    [Fact]
+    public void DarDeBaja_UsuarioActivo_CambiaActivoAFalseYAsignaFechaBaja()
+    {
+        // Arrange
+        var usuario = new Usuario(
+            "Laura",
+            "Fernández",
+            "35123456",
+            new DateTime(1990, 5, 20),
+            "laura@clinicaenza.com",
+            "USR-001",
+            "hash_inicial",
+            RolUsuario.Administrador);
+
+        Assert.True(usuario.Activo);
+        Assert.Null(usuario.FechaBaja);
+
+        var antesDeBaja = DateTime.Now;
+
+        // Act
+        usuario.DarDeBaja();
+
+        // Assert
+        Assert.False(usuario.Activo);
+        Assert.NotNull(usuario.FechaBaja);
+        Assert.True(usuario.FechaBaja >= antesDeBaja);
+        Assert.True(usuario.FechaBaja <= DateTime.Now);
+    }
+
+    [Fact]
+    public void DarDeBaja_UsuarioYaDadoDeBaja_LanzaInvalidOperationException()
+    {
+        // Arrange
+        var usuario = new Usuario(
+            "Laura",
+            "Fernández",
+            "35123456",
+            new DateTime(1990, 5, 20),
+            "laura@clinicaenza.com",
+            "USR-001",
+            "hash_inicial",
+            RolUsuario.Administrador);
+
+        usuario.DarDeBaja();
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => usuario.DarDeBaja());
+    }
 }
 
