@@ -15,6 +15,8 @@ namespace ClinicaEnza.Domain
         public RolUsuario Rol { get; private set; }
         public int? IdMedico { get; private set; }
         public Medico? Medico { get; private set; }
+        public bool Activo { get; private set; } = true;
+        public DateTime? FechaBaja { get; private set; }
 
         protected Usuario() { }
 
@@ -96,6 +98,15 @@ namespace ClinicaEnza.Domain
         public override string ObtenerIdentificacion()
         {
             return $"Usuario Legajo: {Legajo} ({Rol})";
+        }
+
+        public void DarDeBaja()
+        {
+            if (!Activo)
+                throw new InvalidOperationException("El usuario ya se encuentra dado de baja.");
+
+            Activo = false;
+            FechaBaja = DateTime.Now;
         }
     }
 }

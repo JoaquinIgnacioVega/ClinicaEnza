@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Usuarios.Commands.DarDeBajaUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Commands.ModificarUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Commands.RegistrarUsuario;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,24 @@ public class UsuariosController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpDelete("{id:int}")]
+    [HttpPut("{id:int}/baja")]
+    public async Task<IActionResult> DarDeBajaUsuario(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(new DarDeBajaUsuarioCommand(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error != null && result.Error.Contains("No se encontró"))
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return NoContent();
     }
 }
 
