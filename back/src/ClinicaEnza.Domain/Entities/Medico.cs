@@ -36,6 +36,26 @@ namespace ClinicaEnza.Domain
         {
         }
 
+        public void ActualizarInformacion(string nombre, string apellido, string mail, Especialidad especialidad, string matricula)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ArgumentException("El nombre no puede estar vacío.", nameof(nombre));
+            if (string.IsNullOrWhiteSpace(apellido))
+                throw new ArgumentException("El apellido no puede estar vacío.", nameof(apellido));
+            if (string.IsNullOrWhiteSpace(mail))
+                throw new ArgumentException("El correo electrónico no puede estar vacío.", nameof(mail));
+            if (string.IsNullOrWhiteSpace(matricula))
+                throw new ArgumentException("La matrícula es obligatoria.", nameof(matricula));
+            if (!Enum.IsDefined(typeof(Especialidad), especialidad))
+                throw new ArgumentException("La especialidad no es válida.", nameof(especialidad));
+
+            Nombre = nombre.Trim();
+            Apellido = apellido.Trim();
+            Mail = mail.Trim();
+            Especialidad = especialidad;
+            Matricula = matricula.Trim();
+        }
+
         public string ObtenerFichaProfesional()
         {
             return $"Dr/a. {ObtenerNombreCompleto()} - MP: {Matricula} ({Especialidad})";

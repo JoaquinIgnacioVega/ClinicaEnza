@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Medicos.Commands.ModificarMedico;
 using ClinicaEnza.Application.Features.Medicos.Commands.RegistrarMedico;
 using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicos;
 using Microsoft.AspNetCore.Mvc;
@@ -38,5 +39,24 @@ public class MedicosController : ControllerBase
             return BadRequest(new { error = result.Error });
 
         return Created($"/api/medicos/{result.Value.IdMedico}", result.Value);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Modificar(
+        int id,
+        [FromBody] ModificarMedicoCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.IdMedico = id;
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("No se encontró") == true)
+                return NotFound(new { error = result.Error });
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 }
