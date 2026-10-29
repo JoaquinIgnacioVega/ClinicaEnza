@@ -361,7 +361,9 @@ public class RegistrarUsuarioCommandHandlerTests
         public Task<bool> ExisteMatriculaAsync(string matricula, CancellationToken cancellationToken = default) =>
             Task.FromResult(Medicos.Any(m => string.Equals(m.Matricula, matricula, StringComparison.OrdinalIgnoreCase)));
 
-        public Task<bool> ExisteDniAsync(string dni, CancellationToken cancellationToken = default) =>
+        public Task<bool> ExisteMatriculaAsync(string matricula, int? idMedicoExcluir, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Medicos.Any(m => string.Equals(m.Matricula, matricula, StringComparison.OrdinalIgnoreCase) && (!idMedicoExcluir.HasValue || m.IdPersona != idMedicoExcluir.Value)));
+public Task<bool> ExisteDniAsync(string dni, CancellationToken cancellationToken = default) =>
             Task.FromResult(Medicos.Any(m => string.Equals(m.Dni, dni, StringComparison.OrdinalIgnoreCase)));
     }
 

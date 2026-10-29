@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -221,10 +221,13 @@ public class RegistrarMedicoCommandHandlerTests
             return Task.CompletedTask;
         }
 
-        public Task<bool> ExisteMatriculaAsync(string matricula, CancellationToken cancellationToken = default)
+        public Task<bool> ExisteMatriculaAsync(string matricula, CancellationToken cancellationToken = default) =>
+            ExisteMatriculaAsync(matricula, null, cancellationToken);
+
+        public Task<bool> ExisteMatriculaAsync(string matricula, int? idMedicoExcluir, CancellationToken cancellationToken = default)
         {
             var existe = MatriculasExistentes.Contains(matricula)
-                         || Medicos.Any(m => string.Equals(m.Matricula, matricula, StringComparison.OrdinalIgnoreCase));
+                         || Medicos.Any(m => string.Equals(m.Matricula, matricula, StringComparison.OrdinalIgnoreCase) && (!idMedicoExcluir.HasValue || m.IdPersona != idMedicoExcluir.Value));
             return Task.FromResult(existe);
         }
 

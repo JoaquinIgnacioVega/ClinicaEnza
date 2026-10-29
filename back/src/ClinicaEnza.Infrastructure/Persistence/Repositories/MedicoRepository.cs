@@ -13,7 +13,14 @@ public class MedicoRepository : Repository<Medico>, IMedicoRepository
 
     public async Task<bool> ExisteMatriculaAsync(string matricula, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(m => m.Matricula == matricula, cancellationToken);
+        return await ExisteMatriculaAsync(matricula, null, cancellationToken);
+    }
+
+    public async Task<bool> ExisteMatriculaAsync(string matricula, int? idMedicoExcluir, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.AnyAsync(
+            m => m.Matricula == matricula && (!idMedicoExcluir.HasValue || m.IdPersona != idMedicoExcluir.Value),
+            cancellationToken);
     }
 
     public async Task<bool> ExisteDniAsync(string dni, CancellationToken cancellationToken = default)

@@ -9,11 +9,11 @@ namespace ClinicaEnza.Domain
     public abstract class Persona
     {
         public int IdPersona { get; set; }
-        public string Nombre { get; private set; } = string.Empty;
-        public string Apellido { get; private set; } = string.Empty;
-        public string Dni { get; private set; } = string.Empty;
-        public DateTime FechaNacimiento { get; private set; }
-        public string Mail { get; private set; } = string.Empty;
+        public string Nombre { get; protected set; } = string.Empty;
+        public string Apellido { get; protected set; } = string.Empty;
+        public string Dni { get; protected set; } = string.Empty;
+        public DateTime FechaNacimiento { get; protected set; }
+        public string Mail { get; protected set; } = string.Empty;
 
         protected Persona() { }
 
