@@ -1,5 +1,6 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.HorariosAtencion.Commands.ConfigurarHorarioAtencion;
+using ClinicaEnza.Application.Features.HorariosAtencion.Queries.ObtenerHorariosDisponibles;
 using ClinicaEnza.Application.Features.HorariosAtencion.Queries.ObtenerHorariosPorMedico;
 using ClinicaEnza.Application.Features.Medicos.Commands.ModificarMedico;
 using ClinicaEnza.Application.Features.Medicos.Commands.RegistrarMedico;
@@ -121,6 +122,26 @@ public class MedicosController : ControllerBase
             if (result.Error?.Contains("No se encontró") == true)
                 return NotFound(new { error = result.Error });
 
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{idMedico:int}/disponibilidad")]
+    public async Task<IActionResult> ObtenerDisponibilidad(
+        int idMedico,
+        [FromQuery] DateTime fecha,
+        CancellationToken cancellationToken)
+    {
+        if (fecha == default)
+        {
+            return BadRequest(new { error = "La fecha es obligatoria." });
+        }
+
+        var result = await _mediator.SendAsync(new ObtenerHorariosDisponiblesQuery(idMedico, fecha), cancellationToken);
+        if (result.IsFailure)
+        {
             return BadRequest(new { error = result.Error });
         }
 

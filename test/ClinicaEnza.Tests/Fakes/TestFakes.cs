@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
 using ClinicaEnza.Domain;
+using ClinicaEnza.Domain.Enums;
 
 namespace ClinicaEnza.Tests.Fakes;
 
@@ -72,6 +73,44 @@ public class FakeHorarioAtencionRepository : IHorarioAtencionRepository
     public Task<HorarioAtencion?> ObtenerPorMedicoYHorarioAsync(int idMedico, DayOfWeek diaSemana, TimeSpan hora, TimeSpan horaFin, CancellationToken cancellationToken = default)
     {
         var item = _repo.Entities.FirstOrDefault(h => h.IdMedico == idMedico && h.DiaSemana == diaSemana && h.HoraDesde <= hora && horaFin <= h.HoraHasta);
+        return Task.FromResult(item);
+    }
+}
+
+public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
+{
+    public Task<IReadOnlyList<Turno>> ObtenerSuperpuestosAsync(int idMedico, DateTime inicio, DateTime fin, int? turnoIdExcluir = null, CancellationToken cancellationToken = default)
+    {
+        var list = Entities
+            .Where(t => t.IdMedico == idMedico && t.Estado != EstadoTurno.Cancelado)
+            .Where(t => t.HoraInicio < fin && inicio < t.HoraFin)
+            .Where(t => !turnoIdExcluir.HasValue || t.IdTurno != turnoIdExcluir.Value)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<Turno>>(list);
+    }
+
+    public Task<IReadOnlyList<Turno>> ObtenerSuperpuestosConsultorioAsync(int idConsultorio, DateTime inicio, DateTime fin, int? turnoIdExcluir = null, CancellationToken cancellationToken = default)
+    {
+        var list = Entities
+            .Where(t => t.IdConsultorio == idConsultorio && t.Estado != EstadoTurno.Cancelado)
+            .Where(t => t.HoraInicio < fin && inicio < t.HoraFin)
+            .Where(t => !turnoIdExcluir.HasValue || t.IdTurno != turnoIdExcluir.Value)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<Turno>>(list);
+    }
+
+    public Task<IReadOnlyList<Turno>> ObtenerPorMedicoAsync(int idMedico, CancellationToken cancellationToken = default)
+    {
+        var list = Entities
+            .Where(t => t.IdMedico == idMedico)
+            .OrderBy(t => t.HoraInicio)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<Turno>>(list);
+    }
+
+    public Task<Turno?> ObtenerDetallePorIdAsync(int idTurno, CancellationToken cancellationToken = default)
+    {
+        var item = Entities.FirstOrDefault(t => t.IdTurno == idTurno);
         return Task.FromResult(item);
     }
 }

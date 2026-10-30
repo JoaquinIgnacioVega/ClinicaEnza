@@ -23,14 +23,6 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto
         _jwtTokenGenerator = jwtTokenGenerator ?? throw new ArgumentNullException(nameof(jwtTokenGenerator));
     }
 
-    public LoginHandler(
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
-        : this(unitOfWork?.Usuarios ?? throw new ArgumentNullException(nameof(unitOfWork)), passwordHasher, jwtTokenGenerator)
-    {
-    }
-
     public async Task<Result<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken = default)
     {
         if (request == null)
@@ -93,23 +85,3 @@ public class LoginHandler : IRequestHandler<LoginCommand, Result<AuthResponseDto
         return Result.Success(response);
     }
 }
-
-public class LoginCommandHandler : LoginHandler
-{
-    public LoginCommandHandler(
-        IUsuarioRepository usuarioRepository,
-        IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
-        : base(usuarioRepository, passwordHasher, jwtTokenGenerator)
-    {
-    }
-
-    public LoginCommandHandler(
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        IJwtTokenGenerator jwtTokenGenerator)
-        : base(unitOfWork, passwordHasher, jwtTokenGenerator)
-    {
-    }
-}
-
