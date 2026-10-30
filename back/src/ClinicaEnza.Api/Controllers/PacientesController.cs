@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Pacientes.Commands.CrearPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,18 @@ public class PacientesController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Crear([FromBody] CrearPacienteCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Created($"/api/pacientes/{result.Value.IdPaciente}", result.Value);
     }
 }
 

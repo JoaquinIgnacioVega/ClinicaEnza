@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +21,30 @@ namespace ClinicaEnza.Domain
         public Paciente(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, string obraSocial)
             : base(nombre, apellido, dni, fechaNacimiento, mail)
         {
+            if (string.IsNullOrWhiteSpace(obraSocial))
+                throw new ArgumentException("La obra social no puede estar vacía.", nameof(obraSocial));
+
             ObraSocial = obraSocial;
+            InicializarHistoriaClinica();
+        }
+
+        public Paciente(string nombre, string apellido, string dni, DateTime fechaNacimiento, string mail, string obraSocial, decimal peso, decimal altura)
+            : base(nombre, apellido, dni, fechaNacimiento, mail)
+        {
+            if (string.IsNullOrWhiteSpace(obraSocial))
+                throw new ArgumentException("La obra social no puede estar vacía.", nameof(obraSocial));
+
+            ActualizarMedidas(peso, altura);
+            ObraSocial = obraSocial;
+            InicializarHistoriaClinica();
+        }
+
+        public void InicializarHistoriaClinica()
+        {
+            if (HistoriaClinica == null)
+            {
+                HistoriaClinica = new HistoriaClinica(this);
+            }
         }
 
         public void ActualizarMedidas(decimal peso, decimal altura)
@@ -41,3 +64,4 @@ namespace ClinicaEnza.Domain
         }
     }
 }
+
