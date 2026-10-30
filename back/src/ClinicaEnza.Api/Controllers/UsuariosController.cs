@@ -2,6 +2,9 @@ using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.Usuarios.Commands.DarDeBajaUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Commands.ModificarUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Commands.RegistrarUsuario;
+using ClinicaEnza.Application.Features.Usuarios.Queries.ObtenerUsuarioPorId;
+using ClinicaEnza.Application.Features.Usuarios.Queries.ObtenerUsuarios;
+using ClinicaEnza.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -15,6 +18,38 @@ public class UsuariosController : ControllerBase
     public UsuariosController(IMediator mediator)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ObtenerUsuarios(
+        [FromQuery] bool? soloActivos,
+        [FromQuery] RolUsuario? rol,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(new ObtenerUsuariosQuery(soloActivos, rol), cancellationToken);
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> ObtenerUsuarioPorId(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(new ObtenerUsuarioPorIdQuery(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error != null && result.Error.Contains("No se encontró"))
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result);
     }
 
     [HttpPost]
