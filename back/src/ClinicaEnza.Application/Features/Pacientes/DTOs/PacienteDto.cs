@@ -12,5 +12,6 @@ public class PacienteDto
     public string ObraSocial { get; set; } = string.Empty;
     public decimal Peso { get; set; }
     public decimal Altura { get; set; }
+    public int? IdHistoriaClinica { get; set; }
 }
 
