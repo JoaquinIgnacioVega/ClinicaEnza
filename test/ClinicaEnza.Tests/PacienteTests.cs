@@ -169,6 +169,58 @@ public class PacienteTests
     }
 
     [Fact]
+    public void ActualizarDatosPersonales_DatosValidos_ActualizaPropiedades()
+    {
+        // Arrange
+        var paciente = new Paciente(
+            "Juan",
+            "Pérez",
+            "12345678",
+            DateTime.Today.AddYears(-25),
+            "juan@test.com",
+            "OSDE",
+            70m,
+            1.75m);
+
+        // Act
+        paciente.ActualizarDatosPersonales("Juan Carlos", "Pérez García", "juancarlos@test.com", "Swiss Medical");
+
+        // Assert
+        Assert.Equal("Juan Carlos", paciente.Nombre);
+        Assert.Equal("Pérez García", paciente.Apellido);
+        Assert.Equal("juancarlos@test.com", paciente.Mail);
+        Assert.Equal("Swiss Medical", paciente.ObraSocial);
+    }
+
+    [Theory]
+    [InlineData("", "Pérez", "juan@test.com", "Swiss Medical")]
+    [InlineData("   ", "Pérez", "juan@test.com", "Swiss Medical")]
+    [InlineData("Juan", "", "juan@test.com", "Swiss Medical")]
+    [InlineData("Juan", "   ", "juan@test.com", "Swiss Medical")]
+    [InlineData("Juan", "Pérez", "", "Swiss Medical")]
+    [InlineData("Juan", "Pérez", "   ", "Swiss Medical")]
+    [InlineData("Juan", "Pérez", "juan@test.com", "")]
+    [InlineData("Juan", "Pérez", "juan@test.com", "   ")]
+    public void ActualizarDatosPersonales_DatosObligatoriosVacios_LanzaArgumentException(
+        string nombre, string apellido, string mail, string obraSocial)
+    {
+        // Arrange
+        var paciente = new Paciente(
+            "Juan",
+            "Pérez",
+            "12345678",
+            DateTime.Today.AddYears(-25),
+            "juan@test.com",
+            "OSDE",
+            70m,
+            1.75m);
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() =>
+            paciente.ActualizarDatosPersonales(nombre, apellido, mail, obraSocial));
+    }
+
+    [Fact]
     public void ObtenerIdentificacion_RetornaFormatoCorrecto()
     {
         // Arrange
