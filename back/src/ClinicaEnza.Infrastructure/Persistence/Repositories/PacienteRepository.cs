@@ -21,7 +21,7 @@ public class PacienteRepository : Repository<Paciente>, IPacienteRepository
         return await _dbSet
             .Include(p => p.HistoriaClinica)
                 .ThenInclude(h => h!.Prescripciones)
+                    .ThenInclude(pr => pr.Medico)
             .FirstOrDefaultAsync(p => p.IdPersona == idPaciente, cancellationToken);
     }
 }
-
