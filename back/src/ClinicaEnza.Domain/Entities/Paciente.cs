@@ -8,7 +8,7 @@ namespace ClinicaEnza.Domain
 {
     public class Paciente : Persona
     {
-        public string ObraSocial { get; set; } = string.Empty;
+        public string ObraSocial { get; private set; } = string.Empty;
         public decimal Peso { get; private set; }
         public decimal Altura { get; private set; }
 
@@ -45,6 +45,16 @@ namespace ClinicaEnza.Domain
             {
                 HistoriaClinica = new HistoriaClinica(this);
             }
+        }
+
+        public void ActualizarDatosPersonales(string nombre, string apellido, string mail, string obraSocial)
+        {
+            ActualizarDatos(nombre, apellido, mail);
+
+            if (string.IsNullOrWhiteSpace(obraSocial))
+                throw new ArgumentException("La obra social no puede estar vacía.", nameof(obraSocial));
+
+            ObraSocial = obraSocial.Trim();
         }
 
         public void ActualizarMedidas(decimal peso, decimal altura)
