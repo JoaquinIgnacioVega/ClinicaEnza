@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +33,19 @@ public class HistoriaClinica
         }
 
         Prescripciones.Add(prescripcion);
+    }
+
+    public PrescripcionMedica AgregarPrescripcion(int idMedico, string medicamento, Medico? medico = null)
+    {
+        if (string.IsNullOrWhiteSpace(medicamento))
+            throw new ArgumentException("El nombre del medicamento es obligatorio.", nameof(medicamento));
+
+        if (idMedico <= 0)
+            throw new ArgumentException("El identificador del médico debe ser mayor a cero.", nameof(idMedico));
+
+        var prescripcion = new PrescripcionMedica(medicamento.Trim(), this, idMedico, medico);
+        Prescripciones.Add(prescripcion);
+        return prescripcion;
     }
 
     public List<PrescripcionMedica> ObtenerPrescripcionesPorMedico(int idMedico)

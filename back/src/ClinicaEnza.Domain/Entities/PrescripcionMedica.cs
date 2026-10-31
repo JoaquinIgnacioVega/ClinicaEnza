@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,12 +24,31 @@ public class PrescripcionMedica
         if (string.IsNullOrWhiteSpace(medicamento))
             throw new ArgumentException("El nombre del medicamento es obligatorio.", nameof(medicamento));
 
-        Medicamento = medicamento;
+        Medicamento = medicamento.Trim();
         HistoriaClinica = historiaClinica ?? throw new ArgumentNullException(nameof(historiaClinica));
         Medico = medico ?? throw new ArgumentNullException(nameof(medico));
 
         IdHistoriaClinica = historiaClinica.IdHistoriaClinica;
         IdMedico = medico.IdPersona;
+        Fecha = DateTime.Now;
+    }
+
+    public PrescripcionMedica(string medicamento, HistoriaClinica historiaClinica, int idMedico, Medico? medico = null)
+    {
+        if (string.IsNullOrWhiteSpace(medicamento))
+            throw new ArgumentException("El nombre del medicamento es obligatorio.", nameof(medicamento));
+
+        if (idMedico <= 0)
+            throw new ArgumentException("El identificador del médico debe ser mayor a cero.", nameof(idMedico));
+
+        Medicamento = medicamento.Trim();
+        HistoriaClinica = historiaClinica ?? throw new ArgumentNullException(nameof(historiaClinica));
+        IdHistoriaClinica = historiaClinica.IdHistoriaClinica;
+        IdMedico = idMedico;
+        if (medico != null)
+        {
+            Medico = medico;
+        }
         Fecha = DateTime.Now;
     }
 
