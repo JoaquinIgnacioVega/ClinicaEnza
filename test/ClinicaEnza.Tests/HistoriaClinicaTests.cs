@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ClinicaEnza.Domain;
 using Xunit;
 
@@ -21,6 +21,41 @@ namespace ClinicaEnza.Tests
             historia.AgregarPrescripcion(prescripcion);
 
             Assert.Single(historia.Prescripciones);
+        }
+
+        [Fact]
+        public void AgregarPrescripcion_ConIdMedicoYMedicamento_CreaYAgregaALaLista()
+        {
+            var historia = new HistoriaClinica(CrearPacienteMock()) { IdHistoriaClinica = 5 };
+            var medico = CrearMedicoMock();
+            medico.IdPersona = 2;
+
+            var prescripcion = historia.AgregarPrescripcion(2, "Amoxicilina 500mg", medico);
+
+            Assert.NotNull(prescripcion);
+            Assert.Single(historia.Prescripciones);
+            Assert.Equal("Amoxicilina 500mg", prescripcion.Medicamento);
+            Assert.Equal(2, prescripcion.IdMedico);
+            Assert.Equal(5, prescripcion.IdHistoriaClinica);
+            Assert.Equal(DateTime.Today, prescripcion.Fecha.Date);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void AgregarPrescripcion_MedicamentoVacio_LanzaArgumentException(string medicamentoInvalido)
+        {
+            var historia = new HistoriaClinica(CrearPacienteMock());
+
+            Assert.Throws<ArgumentException>(() => historia.AgregarPrescripcion(1, medicamentoInvalido));
+        }
+
+        [Fact]
+        public void AgregarPrescripcion_IdMedicoInvalido_LanzaArgumentException()
+        {
+            var historia = new HistoriaClinica(CrearPacienteMock());
+
+            Assert.Throws<ArgumentException>(() => historia.AgregarPrescripcion(0, "Paracetamol 500mg"));
         }
 
         [Fact]
