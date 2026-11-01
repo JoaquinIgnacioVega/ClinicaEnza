@@ -8,6 +8,7 @@ public class PacienteDto
     public string NombreCompleto => $"{Apellido.ToUpper()}, {Nombre}";
     public string Dni { get; set; } = string.Empty;
     public DateTime FechaNacimiento { get; set; }
+    public int Edad { get; set; }
     public string Mail { get; set; } = string.Empty;
     public string ObraSocial { get; set; } = string.Empty;
     public decimal Peso { get; set; }
