@@ -3,7 +3,9 @@ using ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.CrearTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.ReagendarTurno;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnoPorId;
+using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnos;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorMedico;
+using ClinicaEnza.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -29,6 +31,25 @@ public class TurnosController : ControllerBase
         }
 
         return CreatedAtAction(nameof(ObtenerPorId), new { id = result.Value.IdTurno }, result.Value);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ObtenerTurnos(
+        [FromQuery] DateTime? fecha,
+        [FromQuery] int? idPaciente,
+        [FromQuery] int? idMedico,
+        [FromQuery] EstadoTurno? estado,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(
+            new ObtenerTurnosQuery(fecha, idPaciente, idMedico, estado), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpPut("{id:int}/cancelar")]
