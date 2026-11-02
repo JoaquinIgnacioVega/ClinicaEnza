@@ -41,7 +41,9 @@ public class ObtenerHorariosDisponiblesQueryHandler : IRequestHandler<ObtenerHor
         }
 
         // 2. Obtener los turnos activos (Estado != Cancelado) del médico en esa fecha
-        var turnosMedico = await _turnoRepository.ObtenerPorMedicoAsync(request.IdMedico, cancellationToken);
+        var turnosMedico = await _turnoRepository.ObtenerPorMedicoAsync(
+            request.IdMedico,
+            cancellationToken: cancellationToken);
         var turnosActivosDelDia = turnosMedico
             .Where(t => t.HoraInicio.Date == fechaObjetivo && t.Estado != EstadoTurno.Cancelado)
             .ToList();

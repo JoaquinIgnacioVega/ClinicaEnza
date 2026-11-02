@@ -118,5 +118,26 @@ namespace ClinicaEnza.Tests
 
             Assert.Throws<ReglaDeNegocioException>(() => turno.Cancelar());
         }
+
+        [Fact]
+        public void MarcarComoRealizado_TurnoPendiente_CambiaEstado()
+        {
+            var turno = new Turno(DateTime.Now.AddDays(1), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+
+            turno.MarcarComoRealizado();
+
+            Assert.Equal(EstadoTurno.Realizado, turno.Estado);
+        }
+
+        [Theory]
+        [InlineData(EstadoTurno.Cancelado)]
+        [InlineData(EstadoTurno.Realizado)]
+        public void MarcarComoRealizado_TurnoNoPendiente_LanzaExcepcion(EstadoTurno estado)
+        {
+            var turno = new Turno(DateTime.Now.AddDays(1), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            turno.CambiarEstado(estado);
+
+            Assert.Throws<ReglaDeNegocioException>(() => turno.MarcarComoRealizado());
+        }
     }
 }
