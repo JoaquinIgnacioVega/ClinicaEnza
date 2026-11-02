@@ -72,6 +72,14 @@ public class Turno
         Estado = nuevoEstado;
     }
 
+    public void Cancelar()
+    {
+        if (Estado != EstadoTurno.Pendiente)
+            throw new ReglaDeNegocioException("Solo se puede cancelar un turno pendiente.");
+
+        Estado = EstadoTurno.Cancelado;
+    }
+
     public bool EsSolapadoCon(Turno otroTurno)
     {
         if (otroTurno == null || Estado == EstadoTurno.Cancelado || otroTurno.Estado == EstadoTurno.Cancelado)
