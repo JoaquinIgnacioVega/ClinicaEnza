@@ -3,6 +3,7 @@ using ClinicaEnza.Application.Features.Pacientes.Commands.CrearPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.ModificarPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.RegistrarPrescripcion;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientePorId;
+using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerHistoriaClinicaPorPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientes;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPrescripcionesPorPaciente;
 using Microsoft.AspNetCore.Mvc;
@@ -117,6 +118,25 @@ public class PacientesController : ControllerBase
             {
                 return NotFound(new { error = result.Error });
             }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{idPaciente:int}/historia-clinica")]
+    public async Task<IActionResult> ObtenerHistoriaClinica(
+        int idPaciente,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(
+            new ObtenerHistoriaClinicaPorPacienteQuery(idPaciente), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("No se encontró") == true)
+                return NotFound(new { error = result.Error });
 
             return BadRequest(new { error = result.Error });
         }
