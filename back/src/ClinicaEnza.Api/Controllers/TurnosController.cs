@@ -94,11 +94,19 @@ public class TurnosController : ControllerBase
     }
 
     [HttpGet("medico/{idMedico:int}")]
-    public async Task<IActionResult> ObtenerPorMedico(int idMedico, CancellationToken cancellationToken)
+    public async Task<IActionResult> ObtenerPorMedico(
+        int idMedico,
+        [FromQuery] DateTime? fecha,
+        [FromQuery] EstadoTurno? estado,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.SendAsync(new ObtenerTurnosPorMedicoQuery(idMedico), cancellationToken);
+        var result = await _mediator.SendAsync(
+            new ObtenerTurnosPorMedicoQuery(idMedico, fecha, estado), cancellationToken);
         if (result.IsFailure)
         {
+            if (result.Error?.Contains("No se encontró") == true)
+                return NotFound(new { error = result.Error });
+
             return BadRequest(new { error = result.Error });
         }
 

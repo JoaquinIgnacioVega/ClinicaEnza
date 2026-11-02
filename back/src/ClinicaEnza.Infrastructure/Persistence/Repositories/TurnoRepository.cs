@@ -69,13 +69,30 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Turno>> ObtenerPorMedicoAsync(int idMedico, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Turno>> ObtenerPorMedicoAsync(
+        int idMedico,
+        DateTime? fecha = null,
+        EstadoTurno? estado = null,
+        CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AsNoTracking()
+        var consulta = _dbSet.AsNoTracking()
             .Include(t => t.Paciente)
             .Include(t => t.Medico)
             .Include(t => t.Consultorio)
             .Where(t => t.IdMedico == idMedico)
+            .AsQueryable();
+
+        if (fecha.HasValue)
+        {
+            var fechaInicio = fecha.Value.Date;
+            var fechaFin = fechaInicio.AddDays(1);
+            consulta = consulta.Where(t => t.HoraInicio >= fechaInicio && t.HoraInicio < fechaFin);
+        }
+
+        if (estado.HasValue)
+            consulta = consulta.Where(t => t.Estado == estado.Value);
+
+        return await consulta
             .OrderBy(t => t.HoraInicio)
             .ToListAsync(cancellationToken);
     }

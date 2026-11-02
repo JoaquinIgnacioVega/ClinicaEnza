@@ -12,11 +12,15 @@ public class TurnoDto
 
     public int IdPaciente { get; set; }
     public string? NombrePaciente { get; set; }
+    public string? DniPaciente { get; set; }
+    public string? ObraSocialPaciente { get; set; }
+    public int? EdadPaciente { get; set; }
 
     public int IdMedico { get; set; }
     public string? NombreMedico { get; set; }
 
     public int IdConsultorio { get; set; }
     public string? NumeroConsultorio { get; set; }
+    public string? UbicacionConsultorio { get; set; }
 }
 
