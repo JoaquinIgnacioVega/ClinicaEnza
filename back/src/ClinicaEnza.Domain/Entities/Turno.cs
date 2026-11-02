@@ -80,6 +80,14 @@ public class Turno
         Estado = EstadoTurno.Cancelado;
     }
 
+    public void MarcarComoRealizado()
+    {
+        if (Estado != EstadoTurno.Pendiente)
+            throw new ReglaDeNegocioException("Solo se puede marcar como realizado un turno pendiente.");
+
+        Estado = EstadoTurno.Realizado;
+    }
+
     public bool EsSolapadoCon(Turno otroTurno)
     {
         if (otroTurno == null || Estado == EstadoTurno.Cancelado || otroTurno.Estado == EstadoTurno.Cancelado)
