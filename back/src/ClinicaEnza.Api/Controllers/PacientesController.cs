@@ -2,6 +2,7 @@ using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.Pacientes.Commands.CrearPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.ModificarPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.RegistrarPrescripcion;
+using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientePorId;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientes;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPrescripcionesPorPaciente;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,30 @@ public class PacientesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ObtenerTodos(CancellationToken cancellationToken)
+    public async Task<IActionResult> ObtenerTodos(
+        [FromQuery] string? filtro,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.SendAsync(new ObtenerPacientesQuery(), cancellationToken);
+        var result = await _mediator.SendAsync(new ObtenerPacientesQuery(filtro), cancellationToken);
         if (result.IsFailure)
         {
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(new ObtenerPacientePorIdQuery(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("No se encontró") == true)
+            {
+                return NotFound(new { error = result.Error });
+            }
+
             return BadRequest(new { error = result.Error });
         }
 
@@ -104,3 +124,4 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 }
+

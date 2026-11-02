@@ -4,5 +4,5 @@ using ClinicaEnza.Application.Features.Pacientes.DTOs;
 
 namespace ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientes;
 
-public record ObtenerPacientesQuery : IRequest<Result<IReadOnlyList<PacienteDto>>>;
+public record ObtenerPacientesQuery(string? Filtro = null) : IRequest<Result<IReadOnlyList<PacienteDto>>>;
 
