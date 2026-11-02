@@ -123,6 +123,25 @@ public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
         return Task.FromResult<IReadOnlyList<Turno>>(list);
     }
 
+    public Task<IReadOnlyList<Turno>> BuscarTurnosAsync(DateTime? fecha, int? idPaciente, int? idMedico, EstadoTurno? estado, CancellationToken cancellationToken = default)
+    {
+        var consulta = Entities.AsEnumerable();
+
+        if (fecha.HasValue)
+            consulta = consulta.Where(t => t.HoraInicio.Date == fecha.Value.Date);
+
+        if (idPaciente.HasValue)
+            consulta = consulta.Where(t => t.IdPaciente == idPaciente.Value);
+
+        if (idMedico.HasValue)
+            consulta = consulta.Where(t => t.IdMedico == idMedico.Value);
+
+        if (estado.HasValue)
+            consulta = consulta.Where(t => t.Estado == estado.Value);
+
+        return Task.FromResult<IReadOnlyList<Turno>>(consulta.OrderBy(t => t.HoraInicio).ToList());
+    }
+
     public Task<Turno?> ObtenerDetallePorIdAsync(int idTurno, CancellationToken cancellationToken = default)
     {
         var item = Entities.FirstOrDefault(t => t.IdTurno == idTurno);

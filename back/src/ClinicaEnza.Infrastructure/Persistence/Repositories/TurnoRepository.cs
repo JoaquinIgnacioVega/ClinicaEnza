@@ -80,6 +80,40 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Turno>> BuscarTurnosAsync(
+        DateTime? fecha,
+        int? idPaciente,
+        int? idMedico,
+        EstadoTurno? estado,
+        CancellationToken cancellationToken = default)
+    {
+        var consulta = _dbSet.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Include(t => t.Medico)
+            .Include(t => t.Consultorio)
+            .AsQueryable();
+
+        if (fecha.HasValue)
+        {
+            var fechaInicio = fecha.Value.Date;
+            var fechaFin = fechaInicio.AddDays(1);
+            consulta = consulta.Where(t => t.HoraInicio >= fechaInicio && t.HoraInicio < fechaFin);
+        }
+
+        if (idPaciente.HasValue)
+            consulta = consulta.Where(t => t.IdPaciente == idPaciente.Value);
+
+        if (idMedico.HasValue)
+            consulta = consulta.Where(t => t.IdMedico == idMedico.Value);
+
+        if (estado.HasValue)
+            consulta = consulta.Where(t => t.Estado == estado.Value);
+
+        return await consulta
+            .OrderBy(t => t.HoraInicio)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Turno?> ObtenerDetallePorIdAsync(int idTurno, CancellationToken cancellationToken = default)
     {
         return await _dbSet.AsNoTracking()
