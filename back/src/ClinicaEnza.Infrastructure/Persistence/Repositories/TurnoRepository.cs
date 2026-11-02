@@ -50,6 +50,25 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Turno>> ObtenerSuperpuestosPacienteAsync(
+        int idPaciente,
+        DateTime inicio,
+        DateTime fin,
+        int? turnoIdExcluir = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbSet.AsNoTracking()
+            .Where(t => t.IdPaciente == idPaciente && t.Estado != EstadoTurno.Cancelado)
+            .Where(t => t.HoraInicio < fin && inicio < t.HoraFin);
+
+        if (turnoIdExcluir.HasValue)
+        {
+            query = query.Where(t => t.IdTurno != turnoIdExcluir.Value);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Turno>> ObtenerPorMedicoAsync(int idMedico, CancellationToken cancellationToken = default)
     {
         return await _dbSet.AsNoTracking()

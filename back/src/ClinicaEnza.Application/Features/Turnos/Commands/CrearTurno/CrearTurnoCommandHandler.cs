@@ -73,6 +73,15 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
                     $"El consultorio '{consultorio.Numero}' ya se encuentra ocupado en ese horario.");
             }
 
+            var superpuestosPaciente = await _turnoRepository.ObtenerSuperpuestosPacienteAsync(
+                request.IdPaciente, request.HoraInicio, horaFinEstimada, null, cancellationToken);
+
+            if (superpuestosPaciente.Any())
+            {
+                throw new TurnoSuperpuestoException(
+                    $"El paciente '{paciente.ObtenerNombreCompleto()}' ya tiene un turno asignado en ese horario.");
+            }
+
             var nuevoTurno = new Turno(request.HoraInicio, paciente, medico, consultorio);
             await _turnoRepository.AddAsync(nuevoTurno, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

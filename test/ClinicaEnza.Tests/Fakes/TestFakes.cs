@@ -99,6 +99,16 @@ public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
         return Task.FromResult<IReadOnlyList<Turno>>(list);
     }
 
+    public Task<IReadOnlyList<Turno>> ObtenerSuperpuestosPacienteAsync(int idPaciente, DateTime inicio, DateTime fin, int? turnoIdExcluir = null, CancellationToken cancellationToken = default)
+    {
+        var list = Entities
+            .Where(t => t.IdPaciente == idPaciente && t.Estado != EstadoTurno.Cancelado)
+            .Where(t => t.HoraInicio < fin && inicio < t.HoraFin)
+            .Where(t => !turnoIdExcluir.HasValue || t.IdTurno != turnoIdExcluir.Value)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<Turno>>(list);
+    }
+
     public Task<IReadOnlyList<Turno>> ObtenerPorMedicoAsync(int idMedico, CancellationToken cancellationToken = default)
     {
         var list = Entities
