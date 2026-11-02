@@ -1,5 +1,6 @@
 ﻿using System;
 using ClinicaEnza.Domain;
+using ClinicaEnza.Domain.Exceptions;
 using Xunit;
 
 namespace ClinicaEnza.Tests
@@ -56,9 +57,45 @@ namespace ClinicaEnza.Tests
         {
             var turno = new Turno(DateTime.Now.AddDays(2), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
 
-            Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<ReglaDeNegocioException>(() =>
                 turno.Reagendar(DateTime.Now.AddDays(-1))
             );
+        }
+
+        [Fact]
+        public void Reagendar_TurnoPendiente_ActualizaHorarioYDuracion()
+        {
+            var turno = new Turno(DateTime.Now.AddDays(1), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            var nuevaHora = DateTime.Now.AddDays(2);
+
+            turno.Reagendar(nuevaHora);
+
+            Assert.Equal(nuevaHora, turno.HoraInicio);
+            Assert.Equal(nuevaHora.AddMinutes(20), turno.HoraFin);
+            Assert.Equal(EstadoTurno.Pendiente, turno.Estado);
+        }
+
+        [Fact]
+        public void Reagendar_TurnoCancelado_LanzaExcepcion()
+        {
+            var turno = new Turno(DateTime.Now.AddDays(1), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            turno.CambiarEstado(EstadoTurno.Cancelado);
+
+            Assert.Throws<ReglaDeNegocioException>(() =>
+                turno.Reagendar(DateTime.Now.AddDays(2)));
+        }
+
+        [Fact]
+        public void Reagendar_ConNuevoConsultorio_ActualizaConsultorio()
+        {
+            var consultorioAnterior = CrearConsultorioMock();
+            var nuevoConsultorio = new Consultorio("202", 2, "Ala Sur");
+            var turno = new Turno(DateTime.Now.AddDays(1), CrearPacienteMock(), CrearMedicoMock(), consultorioAnterior);
+
+            turno.Reagendar(DateTime.Now.AddDays(2), nuevoConsultorio);
+
+            Assert.Equal(nuevoConsultorio.IdConsultorio, turno.IdConsultorio);
+            Assert.Same(nuevoConsultorio, turno.Consultorio);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ClinicaEnza.Domain.Exceptions;
 
 namespace ClinicaEnza.Domain;
 
@@ -46,13 +47,23 @@ public class Turno
         HoraFin = HoraInicio.AddMinutes(20); // Duración fija definida en diagramaSecuencia.md
     }
 
-    public void Reagendar(DateTime nuevaHoraInicio)
+    public void Reagendar(DateTime nuevaHoraInicio, Consultorio? nuevoConsultorio = null)
     {
+        if (Estado != EstadoTurno.Pendiente)
+            throw new ReglaDeNegocioException("Solo se puede reagendar un turno pendiente.");
+
         if (nuevaHoraInicio <= DateTime.Now)
-            throw new InvalidOperationException("No se puede reagendar a una fecha pasada.");
+            throw new ReglaDeNegocioException("No se puede reagendar a una fecha pasada.");
 
         HoraInicio = nuevaHoraInicio;
         CalcularHoraFin();
+
+        if (nuevoConsultorio != null)
+        {
+            Consultorio = nuevoConsultorio;
+            IdConsultorio = nuevoConsultorio.IdConsultorio;
+        }
+
         Estado = EstadoTurno.Pendiente;
     }
 
