@@ -1,7 +1,6 @@
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Common.Models;
-using ClinicaEnza.Domain.Enums;
 
 namespace ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurno;
 
@@ -22,7 +21,7 @@ public class CancelarTurnoCommandHandler : IRequestHandler<CancelarTurnoCommand,
         if (turno == null)
             return Result.Failure($"No se encontró el turno con ID {request.IdTurno}.");
 
-        turno.CambiarEstado(EstadoTurno.Cancelado);
+        turno.Cancelar();
         _turnoRepository.Update(turno);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
