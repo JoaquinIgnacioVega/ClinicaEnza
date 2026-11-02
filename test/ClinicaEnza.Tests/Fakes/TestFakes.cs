@@ -48,6 +48,11 @@ public class FakeRepository<T> : IRepository<T> where T : class
             var horario = Entities.Cast<HorarioAtencion>().FirstOrDefault(h => h.IdHorarioAtencion == id);
             return Task.FromResult(horario as T);
         }
+        if (typeof(T) == typeof(Turno))
+        {
+            var turno = Entities.Cast<Turno>().FirstOrDefault(t => t.IdTurno == id);
+            return Task.FromResult(turno as T);
+        }
 
         return Task.FromResult<T?>(null);
     }

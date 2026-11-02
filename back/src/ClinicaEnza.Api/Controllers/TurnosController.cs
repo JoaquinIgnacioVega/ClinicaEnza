@@ -1,6 +1,7 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.CrearTurno;
+using ClinicaEnza.Application.Features.Turnos.Commands.ReagendarTurno;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnoPorId;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorMedico;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,23 @@ public class TurnosController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id:int}/reagendar")]
+    public async Task<IActionResult> ReagendarTurno(
+        int id,
+        [FromBody] ReagendarTurnoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(
+            new ReagendarTurnoCommand(id, request.NuevaHoraInicio), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
     {
@@ -66,4 +84,6 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 }
+
+public record ReagendarTurnoRequest(DateTime NuevaHoraInicio);
 
