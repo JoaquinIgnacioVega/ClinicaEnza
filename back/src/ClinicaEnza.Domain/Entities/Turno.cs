@@ -63,7 +63,9 @@ public class Turno
 
     public bool EsSolapadoCon(Turno otroTurno)
     {
-        if (otroTurno == null) return false;
+        if (otroTurno == null || Estado == EstadoTurno.Cancelado || otroTurno.Estado == EstadoTurno.Cancelado)
+            return false;
+
         return HoraInicio < otroTurno.HoraFin && otroTurno.HoraInicio < HoraFin;
     }
 }

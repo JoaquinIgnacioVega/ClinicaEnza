@@ -40,6 +40,18 @@ namespace ClinicaEnza.Tests
         }
 
         [Fact]
+        public void EsSolapadoCon_TurnoCancelado_RetornaFalse()
+        {
+            var horaBase = DateTime.Now.AddDays(1);
+            var turnoActivo = new Turno(horaBase, CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            var turnoCancelado = new Turno(horaBase.AddMinutes(5), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            turnoCancelado.CambiarEstado(EstadoTurno.Cancelado);
+
+            Assert.False(turnoActivo.EsSolapadoCon(turnoCancelado));
+            Assert.False(turnoCancelado.EsSolapadoCon(turnoActivo));
+        }
+
+        [Fact]
         public void Reagendar_FechaPasada_LanzaExcepcion()
         {
             var turno = new Turno(DateTime.Now.AddDays(2), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
