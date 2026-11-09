@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { medicoService } from '../../api/medicoService';
 import type { PrescripcionMedicaDto } from '../../types/medico';
@@ -11,14 +12,18 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
+  X,
 } from 'lucide-react';
 
 export const PrescripcionesPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const idMedico = user?.idMedico || 3;
 
-  const [idPaciente, setIdPaciente] = useState<number>(4); // Joaco Vega (ID: 4 en la base de datos real)
-  const [pacienteInput, setPacienteInput] = useState<string>('4');
+  const initialId = Number(searchParams.get('pacienteId')) || 4;
+  const [idPaciente, setIdPaciente] = useState<number>(initialId); // Joaco Vega (ID: 4 en la base de datos real)
+  const [pacienteInput, setPacienteInput] = useState<string>(String(initialId));
   const [prescripciones, setPrescripciones] = useState<PrescripcionMedicaDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -105,31 +110,60 @@ export const PrescripcionesPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-fadeIn">
       {/* Encabezado */}
-      <div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#0d5c68] uppercase tracking-wider">
-          <Pill className="w-4 h-4" />
-          <span>Requerimiento Funcional 22</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#0d5c68] uppercase tracking-wider">
+            <Pill className="w-4 h-4" />
+            <span>Requerimiento Funcional 22</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
+            Prescripciones Médicas
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Emite recetas asociadas a la historia clínica del paciente y consulta indicaciones previas.
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-          Prescripciones Médicas e Historia Clínica
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Emite recetas asociadas a la historia clínica del paciente y consulta antecedentes médicos previos.
-        </p>
+
+        <button
+          type="button"
+          onClick={() => navigate(`/medico/historia-clinica?pacienteId=${idPaciente}`)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[#0d5c68] text-xs font-semibold shadow-2xs transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <FileText className="w-4 h-4" />
+          <span>Ver Historia Clínica Completa</span>
+        </button>
       </div>
 
       {/* Alertas */}
       {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>{errorMessage}</span>
+        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMessage(null)}
+            className="text-red-500 hover:text-red-800 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
       {successMessage && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>{successMessage}</span>
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSuccessMessage(null)}
+            className="text-emerald-600 hover:text-emerald-900 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
@@ -141,7 +175,7 @@ export const PrescripcionesPage: React.FC = () => {
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800">
-              Historia Clínica del Paciente ID: #{idPaciente}
+              Paciente seleccionado ID: #{idPaciente}
             </h3>
             <p className="text-xs text-slate-400">
               (Ejemplo: Paciente ID 4 corresponde a VEGA, Joaco en la base de datos)

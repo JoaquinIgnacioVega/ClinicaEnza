@@ -12,8 +12,9 @@ public class ObtenerHistoriaClinicaPorPacienteQueryHandlerTests
     [Fact]
     public async Task Handle_PacienteConPrescripciones_RetornaHistoriaCompleta()
     {
+        var fechaNacimiento = new DateTime(1990, 1, 1);
         var paciente = new Paciente(
-            "Ana", "Ríos", "11223344", new DateTime(1990, 1, 1), "ana@test.com", "OSDE", 70, 1.65m)
+            "Ana", "Ríos", "11223344", fechaNacimiento, "ana@test.com", "OSDE", 70, 1.65m)
         {
             IdPersona = 1
         };
@@ -34,6 +35,9 @@ public class ObtenerHistoriaClinicaPorPacienteQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal("RÍOS, Ana", result.Value.NombrePaciente);
+        Assert.Equal("11223344", result.Value.DniPaciente);
+        Assert.Equal("OSDE", result.Value.ObraSocial);
+        Assert.Equal(fechaNacimiento, result.Value.FechaNacimiento);
         Assert.Equal(70, result.Value.Peso);
         Assert.Equal(1.65m, result.Value.Altura);
         Assert.Contains("Aspirina 100mg", result.Value.MedicamentosRecetados);

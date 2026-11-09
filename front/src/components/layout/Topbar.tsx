@@ -80,12 +80,12 @@ export const Topbar: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setShowMenu(false);
-                  navigate('/historia-clinica');
+                  navigate('/medico/historia-clinica');
                 }}
-                className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
               >
                 <UserIcon className="w-4 h-4 text-slate-400" />
-                Mi Perfil / Historia
+                Historias Clínicas
               </button>
 
               <button
