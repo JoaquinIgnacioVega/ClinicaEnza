@@ -21,15 +21,15 @@ public class HorarioAtencionRepository : IHorarioAtencionRepository
         TimeSpan horaFin,
         CancellationToken cancellationToken = default)
     {
-        return await _context.HorariosAtencion
+        var horarios = await _context.HorariosAtencion
             .AsNoTracking()
             .Include(h => h.Medico)
             .Include(h => h.Consultorio)
-            .Where(h => h.IdMedico == idMedico
-                && h.DiaSemana == diaSemana
-                && h.HoraDesde <= hora
-                && horaFin <= h.HoraHasta)
-            .FirstOrDefaultAsync(cancellationToken);
+            .Where(h => h.IdMedico == idMedico && h.DiaSemana == diaSemana)
+            .ToListAsync(cancellationToken);
+
+        return horarios
+            .FirstOrDefault(h => h.HoraDesde <= hora && horaFin <= h.HoraHasta);
     }
 
     public async Task<IReadOnlyList<HorarioAtencion>> ObtenerPorMedicoAsync(

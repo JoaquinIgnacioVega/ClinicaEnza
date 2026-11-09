@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, ChevronDown, LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronDown, LogOut, User as UserIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const Topbar: React.FC = () => {
@@ -8,9 +8,9 @@ export const Topbar: React.FC = () => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
 
-  // Datos de usuario mostrados (del contexto o fallback para el prototipo visual)
-  const displayName = user?.nombreCompleto || 'Sofía Ramírez';
-  const displayRole = user?.rolNombre || 'Paciente';
+  // Datos de usuario mostrados del contexto autenticado
+  const displayName = user?.nombreCompleto || 'Dr. Juan Pérez';
+  const displayRole = user?.rolNombre || 'Médico';
 
   // Obtener iniciales
   const getInitials = (name: string) => {
@@ -23,7 +23,7 @@ export const Topbar: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -42,21 +42,8 @@ export const Topbar: React.FC = () => {
         Portal de Autogestión de Salud
       </div>
 
-      {/* Acciones de la derecha: Notificaciones + Perfil */}
-      <div className="flex items-center gap-4 ml-auto">
-        {/* Notificaciones */}
-        <button
-          type="button"
-          className="relative p-2 rounded-full text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-          aria-label="Notificaciones"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
-        </button>
-
-        {/* Separador */}
-        <div className="h-6 w-px bg-slate-200"></div>
-
+      {/* Acciones de la derecha: Perfil */}
+      <div className="flex items-center ml-auto">
         {/* Píldora de Perfil de Usuario */}
         <div className="relative">
           <button

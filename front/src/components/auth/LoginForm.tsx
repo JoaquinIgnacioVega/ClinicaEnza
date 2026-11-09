@@ -5,6 +5,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { DemoAccounts } from './DemoAccounts';
 import { useAuth } from '../../context/AuthContext';
+import { getHomeRouteForUser } from '../../routes/ProtectedRoute';
 import type { ApiError } from '../../api/client';
 
 export const LoginForm: React.FC = () => {
@@ -55,12 +56,9 @@ export const LoginForm: React.FC = () => {
         localStorage.removeItem('clinica_enza_remembered_user');
       }
 
-      const res = await login({ identificador: idTrimmed, password });
-      setSuccessMessage(`¡Bienvenido/a, ${res.nombreCompleto}! Accediendo al sistema...`);
-
-      setTimeout(() => {
-        navigate('/medico');
-      }, 700);
+      const authData = await login({ identificador: idTrimmed, password });
+      const targetRoute = getHomeRouteForUser(authData);
+      navigate(targetRoute, { replace: true });
     } catch (err: unknown) {
       const apiErr = err as ApiError;
       setErrorMessage(apiErr.error || 'Credenciales inválidas. Verificá tu correo/legajo y contraseña.');
@@ -77,9 +75,9 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between min-h-screen p-8 sm:p-12 lg:p-16 w-full max-w-xl mx-auto">
+    <div className="flex flex-col w-full">
       {/* Encabezado / Logo */}
-      <header className="flex items-center gap-3">
+      <header className="flex items-center gap-3 mb-6">
         <div className="w-9 h-9 rounded-lg bg-[#0d5c68] flex items-center justify-center text-white shadow-sm shrink-0">
           <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
             <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z" />
@@ -96,12 +94,12 @@ export const LoginForm: React.FC = () => {
       </header>
 
       {/* Contenido principal / Formulario */}
-      <div className="my-auto py-8">
-        <div className="mb-7">
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+      <div>
+        <div className="mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Iniciá sesión
           </h2>
-          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
             Accedé a tu agenda médica, turnos e historias clínicas de forma segura.
           </p>
         </div>
@@ -202,7 +200,7 @@ export const LoginForm: React.FC = () => {
       </div>
 
       {/* Pie de página */}
-      <footer className="text-xs text-slate-400 pt-4">
+      <footer className="text-[11px] text-slate-400 text-center pt-5 mt-5 border-t border-slate-100">
         © 2026 Clínica Enza · Av. Rivadavia 4520, CABA
       </footer>
     </div>
