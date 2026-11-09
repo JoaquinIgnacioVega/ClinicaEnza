@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ClinicaEnza.Domain;
 using ClinicaEnza.Domain.Exceptions;
 using Xunit;
@@ -7,11 +7,17 @@ namespace ClinicaEnza.Tests
 {
     public class TurnoTests
     {
-        private Paciente CrearPacienteMock() =>
-            new Paciente("Ana", "Ríos", "11223344", DateTime.Today.AddYears(-28), "ana@test.com", "OSDE");
+        private Paciente CrearPacienteMock(int id = 1) =>
+            new Paciente("Ana", "Ríos", "11223344", DateTime.Today.AddYears(-28), "ana@test.com", "OSDE")
+            {
+                IdPersona = id
+            };
 
-        private Medico CrearMedicoMock() =>
-            new Medico("Carlos", "Pérez", "22334455", DateTime.Today.AddYears(-40), "carlos@test.com", Especialidad.Clinica, "MP-100");
+        private Medico CrearMedicoMock(int id = 1) =>
+            new Medico("Carlos", "Pérez", "22334455", DateTime.Today.AddYears(-40), "carlos@test.com", Especialidad.Clinica, "MP-100")
+            {
+                IdPersona = id
+            };
 
         private Consultorio CrearConsultorioMock() =>
             new Consultorio("102", 1, "Ala Norte");
@@ -139,5 +145,69 @@ namespace ClinicaEnza.Tests
 
             Assert.Throws<ReglaDeNegocioException>(() => turno.MarcarComoRealizado());
         }
+
+        [Fact]
+        public void CancelarPorPaciente_DatosValidosYFechaFutura_CambiaEstadoACancelado()
+        {
+            // Arrange
+            var paciente = CrearPacienteMock(5);
+            var fechaTurno = DateTime.Now.AddDays(2);
+            var fechaActual = DateTime.Now;
+            var turno = new Turno(fechaTurno, paciente, CrearMedicoMock(), CrearConsultorioMock());
+
+            // Act
+            turno.CancelarPorPaciente(5, fechaActual);
+
+            // Assert
+            Assert.Equal(EstadoTurno.Cancelado, turno.Estado);
+        }
+
+        [Fact]
+        public void CancelarPorPaciente_PacienteDiferente_LanzaReglaDeNegocioException()
+        {
+            // Arrange
+            var paciente = CrearPacienteMock(5);
+            var turno = new Turno(DateTime.Now.AddDays(2), paciente, CrearMedicoMock(), CrearConsultorioMock());
+
+            // Act & Assert
+            var ex = Assert.Throws<ReglaDeNegocioException>(() =>
+                turno.CancelarPorPaciente(99, DateTime.Now));
+
+            Assert.Equal("No tienes permiso para cancelar un turno que pertenece a otro paciente.", ex.Message);
+        }
+
+        [Theory]
+        [InlineData(EstadoTurno.Cancelado)]
+        [InlineData(EstadoTurno.Realizado)]
+        public void CancelarPorPaciente_TurnoNoPendiente_LanzaReglaDeNegocioException(EstadoTurno estado)
+        {
+            // Arrange
+            var paciente = CrearPacienteMock(5);
+            var turno = new Turno(DateTime.Now.AddDays(2), paciente, CrearMedicoMock(), CrearConsultorioMock());
+            turno.CambiarEstado(estado);
+
+            // Act & Assert
+            var ex = Assert.Throws<ReglaDeNegocioException>(() =>
+                turno.CancelarPorPaciente(5, DateTime.Now));
+
+            Assert.Equal("Solo se pueden cancelar turnos que se encuentren en estado pendiente.", ex.Message);
+        }
+
+        [Fact]
+        public void CancelarPorPaciente_TurnoVencido_LanzaReglaDeNegocioException()
+        {
+            // Arrange
+            var paciente = CrearPacienteMock(5);
+            var fechaTurno = DateTime.Now.AddHours(2);
+            var fechaActual = fechaTurno.AddMinutes(1); // Fecha actual posterior al turno
+            var turno = new Turno(fechaTurno, paciente, CrearMedicoMock(), CrearConsultorioMock());
+
+            // Act & Assert
+            var ex = Assert.Throws<ReglaDeNegocioException>(() =>
+                turno.CancelarPorPaciente(5, fechaActual));
+
+            Assert.Equal("No se puede cancelar un turno cuya fecha y hora ya han vencido.", ex.Message);
+        }
     }
 }
+

@@ -6,15 +6,19 @@ import { MedicoDashboardPage } from '../pages/medico/MedicoDashboardPage';
 import { AgendaTurnosPage } from '../pages/medico/AgendaTurnosPage';
 import { HorariosMedicoPage } from '../pages/medico/HorariosMedicoPage';
 import { PrescripcionesPage } from '../pages/medico/PrescripcionesPage';
+import { MisTurnos } from '../features/turnos/MisTurnos';
 
 export const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta de Login */}
+        {/* Ruta de Login institucional */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* Módulo del Profesional Médico */}
+        {/* Módulo de Paciente (Turnos de Paciente - Desarrollado por compañero) */}
+        <Route path="/mis-turnos" element={<MisTurnos idPacienteInicial={1} />} />
+
+        {/* Portal del Profesional Médico */}
         <Route path="/medico" element={<AppLayout />}>
           <Route index element={<MedicoDashboardPage />} />
           <Route path="turnos" element={<AgendaTurnosPage />} />
@@ -23,7 +27,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="*" element={<Navigate to="/medico" replace />} />
         </Route>
 
-        {/* Redirección por defecto */}
+        {/* Redirección por defecto al login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

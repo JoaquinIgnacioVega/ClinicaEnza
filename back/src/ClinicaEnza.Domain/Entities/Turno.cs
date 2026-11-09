@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,6 +80,20 @@ public class Turno
         Estado = EstadoTurno.Cancelado;
     }
 
+    public void CancelarPorPaciente(int idPacienteSolicitante, DateTime fechaActual)
+    {
+        if (IdPaciente != idPacienteSolicitante)
+            throw new ReglaDeNegocioException("No tienes permiso para cancelar un turno que pertenece a otro paciente.");
+
+        if (Estado != EstadoTurno.Pendiente)
+            throw new ReglaDeNegocioException("Solo se pueden cancelar turnos que se encuentren en estado pendiente.");
+
+        if (HoraInicio <= fechaActual)
+            throw new ReglaDeNegocioException("No se puede cancelar un turno cuya fecha y hora ya han vencido.");
+
+        Estado = EstadoTurno.Cancelado;
+    }
+
     public void MarcarComoRealizado()
     {
         if (Estado != EstadoTurno.Pendiente)
@@ -96,3 +110,4 @@ public class Turno
         return HoraInicio < otroTurno.HoraFin && otroTurno.HoraInicio < HoraFin;
     }
 }
+
