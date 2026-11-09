@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
@@ -8,6 +9,7 @@ import type { ApiError } from '../../api/client';
 
 export const LoginForm: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [identificador, setIdentificador] = useState('');
   const [password, setPassword] = useState('');
@@ -54,7 +56,11 @@ export const LoginForm: React.FC = () => {
       }
 
       const res = await login({ identificador: idTrimmed, password });
-      setSuccessMessage(`¡Bienvenido/a, ${res.nombreCompleto}! Accediendo al panel de ${res.rolNombre}...`);
+      setSuccessMessage(`¡Bienvenido/a, ${res.nombreCompleto}! Accediendo al sistema...`);
+
+      setTimeout(() => {
+        navigate('/medico');
+      }, 700);
     } catch (err: unknown) {
       const apiErr = err as ApiError;
       setErrorMessage(apiErr.error || 'Credenciales inválidas. Verificá tu correo/legajo y contraseña.');

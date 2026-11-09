@@ -1,12 +1,10 @@
 import { AuthProvider } from './context/AuthContext';
-import { LoginPage } from './pages/LoginPage';
+import { AppRoutes } from './routes/AppRoutes';
 
 export default function App() {
   return (
     <AuthProvider>
-      <main className="min-h-screen bg-white">
-        <LoginPage />
-      </main>
+      <AppRoutes />
     </AuthProvider>
   );
 }
