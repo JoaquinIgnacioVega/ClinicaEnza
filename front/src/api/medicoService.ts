@@ -9,6 +9,8 @@ import type {
   TurnoDto,
   PrescripcionMedicaDto,
   RegistrarPrescripcionRequest,
+  PacienteDto,
+  HistoriaClinicaDto,
 } from '../types/medico';
 
 export const medicoService = {
@@ -87,6 +89,20 @@ export const medicoService = {
     return apiClient<void>(`/api/turnos/${idTurno}/cancelar`, {
       method: 'PUT',
     });
+  },
+
+  // --- Pacientes e Historia Clínica (RF 25) ---
+  async buscarPacientes(filtro?: string): Promise<PacienteDto[]> {
+    const query = filtro && filtro.trim() ? `?filtro=${encodeURIComponent(filtro.trim())}` : '';
+    return apiClient<PacienteDto[]>(`/api/pacientes${query}`);
+  },
+
+  async obtenerPacientePorId(idPaciente: number): Promise<PacienteDto> {
+    return apiClient<PacienteDto>(`/api/pacientes/${idPaciente}`);
+  },
+
+  async obtenerHistoriaClinicaPorPaciente(idPaciente: number): Promise<HistoriaClinicaDto> {
+    return apiClient<HistoriaClinicaDto>(`/api/pacientes/${idPaciente}/historia-clinica`);
   },
 
   // --- Prescripciones Médicas (RF 22) ---

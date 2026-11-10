@@ -54,6 +54,8 @@ public class ObtenerHistoriaClinicaPorPacienteQueryHandler
             NombrePaciente = paciente.ObtenerNombreCompleto(),
             DniPaciente = paciente.Dni,
             MailPaciente = paciente.Mail,
+            ObraSocial = paciente.ObraSocial,
+            FechaNacimiento = paciente.FechaNacimiento,
             EdadPaciente = paciente.CalcularEdad(),
             Peso = paciente.Peso,
             Altura = paciente.Altura,

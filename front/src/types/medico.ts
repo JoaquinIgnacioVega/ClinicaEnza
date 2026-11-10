@@ -100,3 +100,33 @@ export interface RegistrarPrescripcionRequest {
 export interface MarcarTurnoRealizadoRequest {
   medicamentoRecetado?: string;
 }
+
+export interface PacienteDto {
+  idPaciente: number;
+  nombre: string;
+  apellido: string;
+  nombreCompleto: string;
+  dni: string;
+  fechaNacimiento: string;
+  edad: number;
+  mail: string;
+  obraSocial: string;
+  peso: number;
+  altura: number;
+  idHistoriaClinica: number | null;
+}
+
+export interface HistoriaClinicaDto {
+  idHistoriaClinica: number;
+  idPaciente: number;
+  nombrePaciente: string;
+  dniPaciente: string;
+  mailPaciente: string;
+  obraSocial?: string;
+  fechaNacimiento?: string;
+  edadPaciente: number;
+  peso: number;
+  altura: number;
+  medicamentosRecetados: string[];
+  prescripciones: PrescripcionMedicaDto[];
+}

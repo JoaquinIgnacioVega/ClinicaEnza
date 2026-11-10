@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { medicoService } from '../../api/medicoService';
 import type { TurnoDto } from '../../types/medico';
@@ -9,6 +10,7 @@ import {
   CheckCircle2,
   XCircle,
   FileCheck2,
+  FileText,
   AlertCircle,
   X,
   RefreshCw,
@@ -28,6 +30,7 @@ const getLocalTodayString = (): string => {
 
 export const AgendaTurnosPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const idMedico = user?.idMedico || 3;
 
   const [fecha, setFecha] = useState<string>(getLocalTodayString);
@@ -607,7 +610,7 @@ export const AgendaTurnosPage: React.FC = () => {
                 </div>
 
                 {/* Acciones */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold border ${
                       esAtendido
@@ -619,6 +622,16 @@ export const AgendaTurnosPage: React.FC = () => {
                   >
                     {turno.estadoDescripcion}
                   </span>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/medico/historia-clinica?pacienteId=${turno.idPaciente}`)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[#0d5c68] text-xs font-semibold transition-colors cursor-pointer"
+                    title="Consultar Historia Clínica del Paciente"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Historia Clínica</span>
+                  </button>
 
                   {!esAtendido && !esCancelado && (
                     <>
@@ -671,13 +684,23 @@ export const AgendaTurnosPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 text-xs space-y-1">
-              <p className="font-semibold text-slate-800">
-                Paciente: {turnoSeleccionado.nombrePaciente || `#${turnoSeleccionado.idPaciente}`}
-              </p>
-              <p className="text-slate-500">
-                Turno #{turnoSeleccionado.idTurno} · {formatearHora(turnoSeleccionado.horaInicio)} hs
-              </p>
+            <div className="p-3.5 rounded-xl bg-slate-50 text-xs flex items-center justify-between gap-3">
+              <div className="space-y-1">
+                <p className="font-semibold text-slate-800">
+                  Paciente: {turnoSeleccionado.nombrePaciente || `#${turnoSeleccionado.idPaciente}`}
+                </p>
+                <p className="text-slate-500">
+                  Turno #{turnoSeleccionado.idTurno} · {formatearHora(turnoSeleccionado.horaInicio)} hs
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/medico/historia-clinica?pacienteId=${turnoSeleccionado.idPaciente}`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-[#0d5c68] text-[#0d5c68] text-[11px] font-semibold transition-colors cursor-pointer shrink-0"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Ver Historia Clínica</span>
+              </button>
             </div>
 
             <form onSubmit={handleMarcarRealizado} className="space-y-4">

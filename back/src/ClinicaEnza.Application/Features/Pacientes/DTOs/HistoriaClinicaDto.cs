@@ -7,6 +7,8 @@ public class HistoriaClinicaDto
     public string NombrePaciente { get; set; } = string.Empty;
     public string DniPaciente { get; set; } = string.Empty;
     public string MailPaciente { get; set; } = string.Empty;
+    public string ObraSocial { get; set; } = string.Empty;
+    public DateTime FechaNacimiento { get; set; }
     public int EdadPaciente { get; set; }
     public decimal Peso { get; set; }
     public decimal Altura { get; set; }

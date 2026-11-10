@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Calendar, Clock, Pill, Database, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, Calendar, Clock, FileText, Pill, Database, ShieldCheck } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const navItems = [
     { to: '/medico', label: 'Inicio', icon: <LayoutGrid className="w-5 h-5" /> },
     { to: '/medico/turnos', label: 'Agenda de Turnos', icon: <Calendar className="w-5 h-5" /> },
     { to: '/medico/horarios', label: 'Horarios de Atención', icon: <Clock className="w-5 h-5" /> },
+    { to: '/medico/historia-clinica', label: 'Historia Clínica', icon: <FileText className="w-5 h-5" /> },
     { to: '/medico/prescripciones', label: 'Prescripciones', icon: <Pill className="w-5 h-5" /> },
   ];
 

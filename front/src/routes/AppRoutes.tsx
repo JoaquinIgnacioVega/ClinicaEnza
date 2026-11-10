@@ -5,6 +5,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { MedicoDashboardPage } from '../pages/medico/MedicoDashboardPage';
 import { AgendaTurnosPage } from '../pages/medico/AgendaTurnosPage';
 import { HorariosMedicoPage } from '../pages/medico/HorariosMedicoPage';
+import { HistoriaClinicaMedicoPage } from '../pages/medico/HistoriaClinicaMedicoPage';
 import { PrescripcionesPage } from '../pages/medico/PrescripcionesPage';
 import { RecepcionistaDashboardPage } from '../pages/recepcionista/RecepcionistaDashboardPage';
 import { AdministradorDashboardPage } from '../pages/administrador/AdministradorDashboardPage';
@@ -31,6 +32,7 @@ export const AppRoutes: React.FC = () => {
             <Route index element={<MedicoDashboardPage />} />
             <Route path="turnos" element={<AgendaTurnosPage />} />
             <Route path="horarios" element={<HorariosMedicoPage />} />
+            <Route path="historia-clinica" element={<HistoriaClinicaMedicoPage />} />
             <Route path="prescripciones" element={<PrescripcionesPage />} />
             <Route path="*" element={<Navigate to="/medico" replace />} />
           </Route>

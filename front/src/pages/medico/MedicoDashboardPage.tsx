@@ -5,6 +5,7 @@ import {
   Stethoscope,
   Calendar,
   Clock,
+  FileText,
   Pill,
   ArrowRight,
   Building2,
@@ -29,7 +30,7 @@ export const MedicoDashboardPage: React.FC = () => {
             Bienvenido/a, {nombreDoctor}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Panel de control para la atención de pacientes, franjas horarias y prescripciones clínicas.
+            Panel de control para la atención de pacientes, historias clínicas, franjas horarias y prescripciones.
           </p>
         </div>
 
@@ -70,13 +71,13 @@ export const MedicoDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid: 3 Módulos de Trabajo */}
+      {/* Grid: 4 Módulos de Trabajo */}
       <div className="space-y-4">
         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
           Módulos de Atención Médica
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Módulo 1: Agenda */}
           <div
             onClick={() => navigate('/medico/turnos')}
@@ -90,7 +91,7 @@ export const MedicoDashboardPage: React.FC = () => {
                 Agenda de Turnos
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Visualiza los turnos citados por fecha, consulta los datos del paciente y finaliza consultas marcándolas como atendidas.
+                Visualiza los turnos citados por fecha, consulta la historia del paciente y finaliza consultas marcándolas como atendidas.
               </p>
             </div>
 
@@ -100,7 +101,30 @@ export const MedicoDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Módulo 2: Horarios */}
+          {/* Módulo 2: Historia Clínica (RF25) */}
+          <div
+            onClick={() => navigate('/medico/historia-clinica')}
+            className="p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-[#0d5c68]/40 hover:shadow-sm transition-all cursor-pointer group flex flex-col justify-between space-y-4"
+          >
+            <div className="space-y-3">
+              <div className="w-11 h-11 rounded-xl bg-cyan-50 text-[#0d5c68] flex items-center justify-center group-hover:scale-105 transition-transform">
+                <FileText className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-bold text-slate-800 group-hover:text-[#0d5c68] transition-colors">
+                Historia Clínica
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Requerimiento Funcional 25: busca pacientes por DNI o nombre y consulta sus antecedentes, biometría y prescripciones.
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-[#0d5c68]">
+              <span>Consultar expediente</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* Módulo 3: Horarios */}
           <div
             onClick={() => navigate('/medico/horarios')}
             className="p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-[#0d5c68]/40 hover:shadow-sm transition-all cursor-pointer group flex flex-col justify-between space-y-4"
@@ -123,7 +147,7 @@ export const MedicoDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Módulo 3: Prescripciones */}
+          {/* Módulo 4: Prescripciones */}
           <div
             onClick={() => navigate('/medico/prescripciones')}
             className="p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-[#0d5c68]/40 hover:shadow-sm transition-all cursor-pointer group flex flex-col justify-between space-y-4"
@@ -136,7 +160,7 @@ export const MedicoDashboardPage: React.FC = () => {
                 Prescripciones Médicas
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Requerimiento Funcional 22: registra recetas en la historia clínica del paciente y consulta indicaciones médicas previas.
+                Requerimiento Funcional 22: registra recetas en la historia clínica del paciente y consulta indicaciones previas.
               </p>
             </div>
 
