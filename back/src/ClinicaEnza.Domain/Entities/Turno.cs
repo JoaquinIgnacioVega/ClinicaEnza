@@ -25,7 +25,7 @@ public class Turno
 
     protected Turno() { }
 
-    public Turno(DateTime horaInicio, Paciente paciente, Medico medico, Consultorio consultorio)
+    public Turno(DateTime horaInicio, int idPaciente, int idMedico, int idConsultorio)
     {
         if (horaInicio <= DateTime.Now)
             throw new ArgumentException("La hora de inicio debe ser una fecha futura.", nameof(horaInicio));
@@ -33,13 +33,21 @@ public class Turno
         HoraInicio = horaInicio;
         CalcularHoraFin();
 
-        Paciente = paciente ?? throw new ArgumentNullException(nameof(paciente));
-        Medico = medico ?? throw new ArgumentNullException(nameof(medico));
-        Consultorio = consultorio ?? throw new ArgumentNullException(nameof(consultorio));
+        IdPaciente = idPaciente;
+        IdMedico = idMedico;
+        IdConsultorio = idConsultorio;
+    }
 
-        IdPaciente = paciente.IdPersona;
-        IdMedico = medico.IdPersona;
-        IdConsultorio = consultorio.IdConsultorio;
+    public Turno(DateTime horaInicio, Paciente paciente, Medico medico, Consultorio consultorio)
+        : this(
+            horaInicio,
+            (paciente ?? throw new ArgumentNullException(nameof(paciente))).IdPersona,
+            (medico ?? throw new ArgumentNullException(nameof(medico))).IdPersona,
+            (consultorio ?? throw new ArgumentNullException(nameof(consultorio))).IdConsultorio)
+    {
+        Paciente = paciente;
+        Medico = medico;
+        Consultorio = consultorio;
     }
 
     private void CalcularHoraFin()
@@ -110,4 +118,3 @@ public class Turno
         return HoraInicio < otroTurno.HoraFin && otroTurno.HoraInicio < HoraFin;
     }
 }
-
