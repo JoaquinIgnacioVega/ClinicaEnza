@@ -8,6 +8,8 @@ import { HorariosMedicoPage } from '../pages/medico/HorariosMedicoPage';
 import { HistoriaClinicaMedicoPage } from '../pages/medico/HistoriaClinicaMedicoPage';
 import { PrescripcionesPage } from '../pages/medico/PrescripcionesPage';
 import { RecepcionistaDashboardPage } from '../pages/recepcionista/RecepcionistaDashboardPage';
+import { RecepcionistaLayout } from '../components/layout/RecepcionistaLayout';
+import { RecepcionistaTurnosPage, RecepcionistaPacientesPage, RecepcionistaMedicosPage, RecepcionistaConsultoriosPage } from '../pages/recepcionista/RecepcionistaOperacionPages';
 import { AdministradorDashboardPage } from '../pages/administrador/AdministradorDashboardPage';
 import { NoAutorizadoPage } from '../pages/NoAutorizadoPage';
 import { MisTurnos } from '../features/turnos/MisTurnos';
@@ -39,9 +41,15 @@ export const AppRoutes: React.FC = () => {
         </Route>
 
         {/* Portal de Recepción protegido para Recepcionista */}
-        <Route element={<ProtectedRoute allowedRoles={['Recepcionista']} />}>
-          <Route path="/recepcionista" element={<RecepcionistaDashboardPage />} />
-          <Route path="/recepcionista/*" element={<Navigate to="/recepcionista" replace />} />
+        <Route element={<ProtectedRoute allowedRoles={['Recepcionista', 'Administrador']} />}>
+          <Route path="/recepcionista" element={<RecepcionistaLayout />}>
+            <Route index element={<RecepcionistaDashboardPage />} />
+            <Route path="turnos" element={<RecepcionistaTurnosPage />} />
+            <Route path="pacientes" element={<RecepcionistaPacientesPage />} />
+            <Route path="medicos" element={<RecepcionistaMedicosPage />} />
+            <Route path="consultorios" element={<RecepcionistaConsultoriosPage />} />
+            <Route path="*" element={<Navigate to="/recepcionista" replace />} />
+          </Route>
         </Route>
 
         {/* Portal de Administración protegido para Administrador */}
