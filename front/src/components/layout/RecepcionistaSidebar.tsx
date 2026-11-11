@@ -6,7 +6,7 @@ const items = [
   { to: '/recepcionista', label: 'Panel general', icon: LayoutGrid, end: true },
   { to: '/recepcionista/turnos', label: 'Turnos', icon: CalendarDays },
   { to: '/recepcionista/pacientes', label: 'Pacientes', icon: Users },
-  { to: '/recepcionista/medicos', label: 'Médicos', icon: Stethoscope },
+  { to: '/recepcionista/medicos', label: 'Médicos y horarios', icon: Stethoscope },
   { to: '/recepcionista/consultorios', label: 'Consultorios', icon: Building2 },
 ];
 
