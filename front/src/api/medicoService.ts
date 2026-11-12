@@ -74,7 +74,7 @@ export const medicoService = {
   },
 
   async desactivarConsultorio(id: number): Promise<void> {
-    return apiClient<void>(`/api/consultorios/${id}`, { method: 'DELETE' });
+    return apiClient<void>(`/api/consultorios/${id}/desactivar`, { method: 'PATCH' });
   },
 
   // --- Turnos del Médico ---

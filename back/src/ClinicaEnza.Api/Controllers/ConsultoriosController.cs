@@ -53,7 +53,7 @@ public class ConsultoriosController : ControllerBase
     }
 
     [Authorize(Roles = "Recepcionista")]
-    [HttpDelete("{id:int}")]
+    [HttpPatch("{id:int}/desactivar")]
     public async Task<IActionResult> Desactivar(int id, CancellationToken cancellationToken)
     {
         var result = await _mediator.SendAsync(new DesactivarConsultorioCommand(id), cancellationToken);
