@@ -50,7 +50,8 @@ public class CrearConsultorioCommandHandler : IRequestHandler<CrearConsultorioCo
                 Numero = consultorio.Numero,
                 Piso = consultorio.Piso,
                 Sector = consultorio.Sector,
-                Ubicacion = consultorio.ObtenerUbicacion()
+                Ubicacion = consultorio.ObtenerUbicacion(),
+                Activo = consultorio.Activo
             });
         }
         catch

@@ -12,6 +12,7 @@ public class Consultorio
     public string Numero { get; set; } = string.Empty;
     public int Piso { get; set; }
     public string Sector { get; set; } = string.Empty;
+    public bool Activo { get; private set; } = true;
 
     // Propiedad de navegación
     public List<Turno> Turnos { get; private set; } = new();
@@ -31,6 +32,14 @@ public class Consultorio
     {
         return $"Consultorio N° {Numero} (Piso {Piso}, Sector {Sector})";
     }
+
+    public void Modificar(string numero, int piso, string sector)
+    {
+        if (string.IsNullOrWhiteSpace(numero)) throw new ArgumentException("El número de consultorio es obligatorio.", nameof(numero));
+        Numero = numero; Piso = piso; Sector = sector;
+    }
+
+    public void Desactivar() => Activo = false;
 
     public bool EstaDisponibleEn(DateTime horario)
     {

@@ -462,13 +462,21 @@ export const RecepcionistaMedicosPage: React.FC = () => {
 
 export const RecepcionistaConsultoriosPage: React.FC = () => {
   const [consultorios, setConsultorios] = useState<ConsultorioDto[]>([]);
+  const [editando, setEditando] = useState<ConsultorioDto | null>(null);
+  const [formulario, setFormulario] = useState({ numero: '', piso: 0, sector: '' });
+  const [guardando, setGuardando] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => { medicoService.obtenerConsultorios().then(setConsultorios).catch(() => setConsultorios([])); }, []);
+  const cargar = () => medicoService.obtenerConsultorios().then(setConsultorios).catch(() => setConsultorios([]));
+  useEffect(() => { void cargar(); }, []);
+  const abrirEdicion = (consultorio: ConsultorioDto) => { setEditando(consultorio); setFormulario({ numero: consultorio.numero, piso: consultorio.piso, sector: consultorio.sector }); };
+  const guardar = async (event: React.FormEvent) => { event.preventDefault(); if (!editando) return; setGuardando(true); try { await medicoService.modificarConsultorio(editando.idConsultorio, formulario); setEditando(null); await cargar(); } finally { setGuardando(false); } };
+  const desactivar = async (consultorio: ConsultorioDto) => { if (!window.confirm(`¿Desactivar el consultorio ${consultorio.numero}?`)) return; await medicoService.desactivarConsultorio(consultorio.idConsultorio); await cargar(); };
   return <div className="space-y-7">
     <Titulo titulo="Consultorios" detalle={`${consultorios.length} espacios de atención disponibles.`} accion={<Boton onClick={() => navigate('/recepcionista/medicos')}><CalendarPlus className="h-4 w-4" />Asignar a un médico</Boton>} />
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
       Los consultorios se asignan a un <strong>horario médico</strong>. Presioná “Asignar a un médico”, elegí al profesional y luego agregá el día, la franja horaria y el consultorio.
     </div>
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">{consultorios.map((consultorio) => <article key={consultorio.idConsultorio} className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center gap-3"><Building2 className="h-5 w-5 text-[#0d8b9a]" /><h2 className="font-bold text-slate-900">Consultorio {consultorio.numero}</h2></div><p className="mt-5 text-sm">{consultorio.piso}° piso</p><p className="mt-1 text-xs text-slate-500">{consultorio.ubicacion}</p><div className="mt-5 border-t border-slate-100 pt-4"><p className="text-[11px] font-semibold uppercase text-slate-500">Sector</p><p className="mt-1 text-sm text-slate-700">{consultorio.sector || 'Atención general'}</p></div></article>)}</div>
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">{consultorios.map((consultorio) => <article key={consultorio.idConsultorio} className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><Building2 className="h-5 w-5 text-[#0d8b9a]" /><h2 className="font-bold text-slate-900">Consultorio {consultorio.numero}</h2></div><div className="flex gap-2"><Boton secundario onClick={() => abrirEdicion(consultorio)}>Editar</Boton><Boton secundario onClick={() => void desactivar(consultorio)}>Desactivar</Boton></div></div><p className="mt-5 text-sm">{consultorio.piso}° piso</p><p className="mt-1 text-xs text-slate-500">{consultorio.ubicacion}</p><div className="mt-5 border-t border-slate-100 pt-4"><p className="text-[11px] font-semibold uppercase text-slate-500">Sector</p><p className="mt-1 text-sm text-slate-700">{consultorio.sector || 'Atención general'}</p></div></article>)}</div>
+    {editando && <Modal titulo={`Editar consultorio ${editando.numero}`} onClose={() => setEditando(null)}><form onSubmit={guardar} className="grid gap-4"><Campo etiqueta="Número" required value={formulario.numero} onChange={(e) => setFormulario({ ...formulario, numero: e.target.value })} /><Campo etiqueta="Piso" type="number" min="0" required value={formulario.piso} onChange={(e) => setFormulario({ ...formulario, piso: Number(e.target.value) })} /><Campo etiqueta="Sector" required value={formulario.sector} onChange={(e) => setFormulario({ ...formulario, sector: e.target.value })} /><div className="flex justify-end gap-3"><Boton type="button" secundario onClick={() => setEditando(null)}>Cancelar</Boton><Boton type="submit" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar cambios'}</Boton></div></form></Modal>}
   </div>;
 };

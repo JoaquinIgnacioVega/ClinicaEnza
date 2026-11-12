@@ -13,6 +13,7 @@ public class ConsultorioConfiguration : IEntityTypeConfiguration<Consultorio>
 
         builder.Property(e => e.Numero).IsRequired().HasMaxLength(20);
         builder.Property(e => e.Sector).HasMaxLength(50);
+        builder.Property(e => e.Activo).IsRequired().HasDefaultValue(true);
     }
 }
 

@@ -59,6 +59,7 @@ export interface ConsultorioDto {
   piso: number;
   sector: string;
   ubicacion: string;
+  activo?: boolean;
 }
 
 export type EstadoTurno = 'Pendiente' | 'Confirmado' | 'Cancelado' | 'Atendido';
