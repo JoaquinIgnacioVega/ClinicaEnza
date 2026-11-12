@@ -69,6 +69,14 @@ export const medicoService = {
     return apiClient<ConsultorioDto[]>('/api/consultorios');
   },
 
+  async modificarConsultorio(id: number, data: Pick<ConsultorioDto, 'numero' | 'piso' | 'sector'>): Promise<ConsultorioDto> {
+    return apiClient<ConsultorioDto>(`/api/consultorios/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  },
+
+  async desactivarConsultorio(id: number): Promise<void> {
+    return apiClient<void>(`/api/consultorios/${id}`, { method: 'DELETE' });
+  },
+
   // --- Turnos del Médico ---
   async obtenerTurnosPorMedico(idMedico: number, fecha?: string, estado?: number): Promise<TurnoDto[]> {
     const params = new URLSearchParams();
