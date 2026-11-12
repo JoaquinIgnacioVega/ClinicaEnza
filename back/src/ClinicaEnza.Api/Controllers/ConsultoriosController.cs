@@ -1,5 +1,7 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Consultorios.Commands.CrearConsultorio;
 using ClinicaEnza.Application.Features.Consultorios.Queries.ObtenerConsultorios;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -25,5 +27,16 @@ public class ConsultoriosController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [Authorize(Roles = "Recepcionista")]
+    [HttpPost]
+    public async Task<IActionResult> Crear([FromBody] CrearConsultorioCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+            return BadRequest(new { error = result.Error });
+
+        return Created($"/api/consultorios/{result.Value.IdConsultorio}", result.Value);
     }
 }
