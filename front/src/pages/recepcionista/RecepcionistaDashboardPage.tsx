@@ -1,140 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, CalendarDays, CheckCircle2, Clock3, Users, Stethoscope, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ClipboardList, Users, CalendarCheck, Clock, ArrowRight, LogOut, CheckCircle2 } from 'lucide-react';
+import { apiClient } from '../../api/client';
+import type { TurnoDto } from '../../types/medico';
 import { useAuth } from '../../context/AuthContext';
-import { Topbar } from '../../components/layout/Topbar';
+
+const hora = (valor: string) => new Date(valor).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+const colorEstado = (estado: string) => estado.toLowerCase().includes('cancel') ? 'bg-red-100 text-red-700' : estado.toLowerCase().includes('real') || estado.toLowerCase().includes('atend') ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700';
 
 export const RecepcionistaDashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const nombreUsuario = user?.nombreCompleto || 'Ana Gómez';
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Topbar />
-
-      <main className="flex-1 p-6 sm:p-8 lg:p-10 max-w-6xl mx-auto w-full space-y-8 animate-fadeIn">
-        {/* Encabezado Principal */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-[#0d5c68] uppercase tracking-wider">
-              <ClipboardList className="w-4 h-4" />
-              <span>Portal de Recepción</span>
-              <span className="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Sesión Activa
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-              Bienvenida, {nombreUsuario}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Módulo de atención al público, admisión y asignación de turnos.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-white hover:border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer self-start sm:self-auto"
-          >
-            <LogOut className="w-4 h-4 text-slate-400" />
-            <span>Cerrar sesión</span>
-          </button>
-        </div>
-
-        {/* Banner Informativo de Asignación de Módulo */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 sm:p-7 shadow-xs">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#0d5c68]/10 text-[#0d5c68] flex items-center justify-center shrink-0 border border-[#0d5c68]/20">
-              <ClipboardList className="w-6 h-6" />
-            </div>
-            <div className="space-y-2 flex-1">
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">
-                Módulo asignado a tus compañeros de equipo
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
-                Has iniciado sesión correctamente como <strong>Recepcionista</strong>. La navegación a este espacio está correctamente protegida y separada del portal médico. La interfaz y flujos operativos específicos de admisión y recepción están reservados para la implementación de tus compañeros.
-              </p>
-              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
-                <span className="flex items-center gap-1 text-emerald-700">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Autenticación JWT activa
-                </span>
-                <span>•</span>
-                <span>Rol: Recepcionista (ID Rol: 1)</span>
-                <span>•</span>
-                <span>Acceso exclusivo a endpoints de recepción</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tarjetas de Funcionalidades Previstas para Recepción */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-cyan-50 text-[#0d5c68] flex items-center justify-center mb-4">
-                <Users className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-800 text-sm">Admisión de Pacientes</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Registro de pacientes nuevos, actualización de datos de contacto y cobertura médica.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              <span>En desarrollo</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d5c68] flex items-center justify-center mb-4">
-                <CalendarCheck className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-800 text-sm">Asignación de Turnos</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Búsqueda de slots disponibles por médico y confirmación presencial o telefónica.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              <span>En desarrollo</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0d5c68] flex items-center justify-center mb-4">
-                <Clock className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-800 text-sm">Sala de Espera</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Check-in de pacientes arribados y notificación a consultorios médicos.
-              </p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              <span>En desarrollo</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Acceso Rápido al Módulo de Pacientes */}
-        <div className="p-4 rounded-xl bg-slate-100/70 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-          <span>¿Querés probar la vista de turnos de pacientes desarrollada por el equipo?</span>
-          <button
-            type="button"
-            onClick={() => navigate('/mis-turnos')}
-            className="text-[#0d5c68] hover:text-[#094852] font-semibold flex items-center gap-1 cursor-pointer hover:underline"
-          >
-            <span>Ver Mis Turnos (Paciente)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </main>
-    </div>
-  );
+  const { user } = useAuth(); const navigate = useNavigate(); const [turnos, setTurnos] = useState<TurnoDto[]>([]); const [pacientes, setPacientes] = useState(0); const [medicos, setMedicos] = useState(0); const hoy = new Date().toISOString().slice(0, 10);
+  useEffect(() => { Promise.all([apiClient<TurnoDto[]>(`/api/turnos?fecha=${hoy}`), apiClient<unknown[]>('/api/pacientes'), apiClient<unknown[]>('/api/medicos')]).then(([agenda, pacientesResponse, medicosResponse]) => { setTurnos(agenda); setPacientes(pacientesResponse.length); setMedicos(medicosResponse.length); }).catch(() => undefined); }, [hoy]);
+  const pendientes = turnos.filter((turno) => !turno.estadoDescripcion.toLowerCase().includes('cancel') && !turno.estadoDescripcion.toLowerCase().includes('real')).length;
+  const cancelados = turnos.filter((turno) => turno.estadoDescripcion.toLowerCase().includes('cancel')).length;
+  const metricas: Array<{ label: string; value: number; Icon: React.ElementType; color: string }> = [{ label: 'Pacientes', value: pacientes, Icon: Users, color: 'bg-cyan-50 text-cyan-700' }, { label: 'Médicos', value: medicos, Icon: Stethoscope, color: 'bg-sky-50 text-sky-700' }, { label: 'Turnos de hoy', value: turnos.length, Icon: CalendarDays, color: 'bg-cyan-50 text-cyan-700' }, { label: 'Pendientes', value: pendientes, Icon: Clock3, color: 'bg-blue-50 text-blue-700' }, { label: 'Cancelados hoy', value: cancelados, Icon: XCircle, color: 'bg-red-50 text-red-600' }];
+  const accesos: Array<{ title: string; text: string; path: string; Icon: React.ElementType }> = [{ title: 'Turnos', text: 'Consultar la agenda completa y sus estados.', path: '/recepcionista/turnos', Icon: CalendarDays }, { title: 'Pacientes', text: 'Buscar y consultar datos de pacientes.', path: '/recepcionista/pacientes', Icon: Users }, { title: 'Médicos y disponibilidad', text: 'Consultar profesionales y horarios.', path: '/recepcionista/medicos', Icon: Stethoscope }];
+  return <div className="space-y-8 animate-fadeIn"><div><p className="text-xs font-bold text-[#0d5c68] uppercase tracking-wider">Panel general</p><h1 className="text-3xl font-bold text-slate-900 tracking-tight mt-1">Bienvenida, {user?.nombreCompleto || 'Ana Gómez'}</h1><p className="text-sm text-slate-500 mt-1">Gestioná la operación diaria de Clínica Enza.</p></div><div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">{metricas.map(({ label, value, Icon, color }) => <div key={label} className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm"><div className="flex items-center justify-between"><p className="text-xs text-slate-500">{label}</p><span className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}><Icon className="w-4 h-4" /></span></div><p className="text-3xl font-bold text-slate-900 mt-3">{value}</p></div>)}</div><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{accesos.map(({ title, text, path, Icon }) => <button key={title} onClick={() => navigate(path)} className="bg-white border border-slate-200 rounded-2xl p-5 text-left hover:border-[#55bdc7] hover:shadow-sm transition-all"><Icon className="w-5 h-5 text-[#0d5c68]" /><h2 className="font-bold text-slate-800 mt-4 text-sm">{title}</h2><p className="text-xs text-slate-500 mt-1">{text}</p><span className="flex items-center gap-1 text-xs font-semibold text-[#0d5c68] mt-4">Abrir módulo <ArrowRight className="w-3.5 h-3.5" /></span></button>)}</div><section className="bg-white border border-slate-200 rounded-2xl overflow-hidden"><div className="p-5 flex items-center justify-between"><div><h2 className="font-bold text-slate-900">Agenda de hoy</h2><p className="text-xs text-slate-500 mt-1">Últimos turnos registrados para la fecha actual.</p></div><button onClick={() => navigate('/recepcionista/turnos')} className="text-xs font-semibold text-[#0d5c68] flex items-center gap-1">Ver todos <ArrowRight className="w-3.5 h-3.5" /></button></div><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-slate-50 text-slate-500"><tr><th className="px-5 py-3">Hora</th><th className="px-5 py-3">Paciente</th><th className="px-5 py-3">Profesional</th><th className="px-5 py-3">Consultorio</th><th className="px-5 py-3">Estado</th></tr></thead><tbody>{turnos.slice(0, 6).map((turno) => <tr key={turno.idTurno} className="border-t border-slate-100"><td className="px-5 py-4 font-semibold">{hora(turno.horaInicio)}</td><td className="px-5 py-4">{turno.nombrePaciente || 'Paciente'}</td><td className="px-5 py-4">{turno.nombreMedico || 'Médico'}</td><td className="px-5 py-4">{turno.numeroConsultorio || 'Sin asignar'}</td><td className="px-5 py-4"><span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${colorEstado(turno.estadoDescripcion)}`}><CheckCircle2 className="inline w-3 h-3 mr-1" />{turno.estadoDescripcion}</span></td></tr>)}</tbody></table></div></section></div>;
 };
