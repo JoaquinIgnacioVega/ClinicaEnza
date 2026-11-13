@@ -4,7 +4,11 @@ import { HeroSection } from '../components/auth/HeroSection';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Stethoscope, ClipboardList, ShieldCheck, Calendar, ArrowRight } from 'lucide-react';
 
-export const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onNavigateToAgenda?: () => void;
+}
+
+export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToAgenda }) => {
   const { user, isAuthenticated, logout } = useAuth();
 
   const getRoleBadge = (rolNombre: string) => {
@@ -89,18 +93,27 @@ export const LoginPage: React.FC = () => {
                     <p className="text-[11px] font-bold uppercase tracking-wider opacity-70">
                       Accesos rápidos del módulo:
                     </p>
-                    {roleInfo.actions.map((act) => (
-                      <div
-                        key={act}
-                        className="flex items-center justify-between p-2.5 bg-white/80 rounded-lg text-xs font-medium text-slate-800 hover:bg-white transition-all cursor-pointer shadow-2xs"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-[#0d5c68]" />
-                          {act}
-                        </span>
-                        <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      </div>
-                    ))}
+                    {roleInfo.actions.map((act) => {
+                      const esAgendaMedico =
+                        user.rolNombre.toLowerCase() === 'medico' &&
+                        act === 'Ver turnos de hoy' &&
+                        !!onNavigateToAgenda;
+
+                      return (
+                        <button
+                          key={act}
+                          type="button"
+                          onClick={esAgendaMedico ? onNavigateToAgenda : undefined}
+                          className="w-full flex items-center justify-between p-2.5 bg-white/80 rounded-lg text-xs font-medium text-slate-800 hover:bg-white transition-all cursor-pointer shadow-2xs text-left"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5 text-[#0d5c68]" />
+                            {act}
+                          </span>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -131,3 +144,4 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+

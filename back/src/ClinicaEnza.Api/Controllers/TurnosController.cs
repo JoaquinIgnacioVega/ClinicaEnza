@@ -3,10 +3,12 @@ using ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.CrearTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.ReagendarTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.MarcarTurnoRealizado;
+using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerAgendaMedico;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnoPorId;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnos;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorMedico;
 using ClinicaEnza.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -124,6 +126,60 @@ public class TurnosController : ControllerBase
         {
             if (result.Error?.Contains("No se encontró") == true)
                 return NotFound(new { error = result.Error });
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("/api/medicos/{idMedico:int}/turnos/agenda")]
+    public async Task<IActionResult> ObtenerAgendaMedico(
+        int idMedico,
+        [FromQuery] DateTime? fecha,
+        [FromQuery] EstadoTurno? estado,
+        [FromQuery] int? idMedicoSolicitante = null,
+        CancellationToken cancellationToken = default)
+    {
+        int? medicoSolicitante = null;
+
+        var claimIdMedico = User.FindFirst("idMedico")?.Value ?? User.FindFirst("IdMedico")?.Value;
+        if (!string.IsNullOrEmpty(claimIdMedico) && int.TryParse(claimIdMedico, out var parsedClaimId))
+        {
+            medicoSolicitante = parsedClaimId;
+        }
+        else if (Request.Headers.TryGetValue("X-Id-Medico", out var headerVal) && int.TryParse(headerVal, out var parsedHeaderId))
+        {
+            medicoSolicitante = parsedHeaderId;
+        }
+        else if (idMedicoSolicitante.HasValue)
+        {
+            medicoSolicitante = idMedicoSolicitante.Value;
+        }
+
+        if (!medicoSolicitante.HasValue)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new
+            {
+                error = "No tienes autorización para consultar la agenda de otro profesional."
+            });
+        }
+
+        var result = await _mediator.SendAsync(
+            new ObtenerAgendaMedicoQuery(idMedico, medicoSolicitante.Value, fecha, estado),
+            cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("autorización") == true)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
+            }
+
+            if (result.Error?.Contains("no encontrado", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return NotFound(new { error = result.Error });
+            }
 
             return BadRequest(new { error = result.Error });
         }
