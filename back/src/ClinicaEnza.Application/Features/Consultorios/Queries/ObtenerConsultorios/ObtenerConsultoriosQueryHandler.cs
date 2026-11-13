@@ -19,7 +19,7 @@ public class ObtenerConsultoriosQueryHandler : IRequestHandler<ObtenerConsultori
         ObtenerConsultoriosQuery request,
         CancellationToken cancellationToken = default)
     {
-        var consultorios = await _consultorioRepository.GetAllAsync(cancellationToken);
+        var consultorios = await _consultorioRepository.FindAsync(c => c.Activo, cancellationToken);
 
         var dtos = consultorios
             .OrderBy(c => c.Piso)
@@ -30,7 +30,8 @@ public class ObtenerConsultoriosQueryHandler : IRequestHandler<ObtenerConsultori
                 Numero = c.Numero,
                 Piso = c.Piso,
                 Sector = c.Sector,
-                Ubicacion = c.ObtenerUbicacion()
+                Ubicacion = c.ObtenerUbicacion(),
+                Activo = c.Activo
             })
             .ToList();
 

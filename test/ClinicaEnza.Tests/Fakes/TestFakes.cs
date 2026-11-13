@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
+using ClinicaEnza.Application.Common.Interfaces.Services;
 using ClinicaEnza.Domain;
 using ClinicaEnza.Domain.Enums;
 
@@ -37,6 +38,11 @@ public class FakeRepository<T> : IRepository<T> where T : class
         {
             var medico = Entities.Cast<Medico>().FirstOrDefault(m => m.IdPersona == id);
             return Task.FromResult(medico as T);
+        }
+        if (typeof(T) == typeof(Paciente))
+        {
+            var paciente = Entities.Cast<Paciente>().FirstOrDefault(p => p.IdPersona == id);
+            return Task.FromResult(paciente as T);
         }
         if (typeof(T) == typeof(Consultorio))
         {
@@ -133,6 +139,17 @@ public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
         return ObtenerPorMedicoAsync(idMedico, fecha, estado, cancellationToken);
     }
 
+    public Task<IReadOnlyList<Turno>> ObtenerPorPacienteAsync(int idPaciente, bool soloPendientes = true, CancellationToken cancellationToken = default)
+    {
+        var consulta = Entities.Where(t => t.IdPaciente == idPaciente);
+
+        if (soloPendientes)
+            consulta = consulta.Where(t => t.Estado == EstadoTurno.Pendiente);
+
+        var list = consulta.OrderBy(t => t.HoraInicio).ToList();
+        return Task.FromResult<IReadOnlyList<Turno>>(list);
+    }
+
     public Task<IReadOnlyList<Turno>> BuscarTurnosAsync(DateTime? fecha, int? idPaciente, int? idMedico, EstadoTurno? estado, CancellationToken cancellationToken = default)
     {
         var consulta = Entities.AsEnumerable();
@@ -156,6 +173,20 @@ public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
     {
         var item = Entities.FirstOrDefault(t => t.IdTurno == idTurno);
         return Task.FromResult(item);
+    }
+}
+
+public class FakeDateTimeService : IDateTimeService
+{
+    public DateTime Now { get; set; } = DateTime.Now;
+    public DateTime UtcNow { get; set; } = DateTime.UtcNow;
+
+    public FakeDateTimeService() { }
+
+    public FakeDateTimeService(DateTime fixedNow)
+    {
+        Now = fixedNow;
+        UtcNow = fixedNow.ToUniversalTime();
     }
 }
 

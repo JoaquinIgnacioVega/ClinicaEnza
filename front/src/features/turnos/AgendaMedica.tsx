@@ -13,7 +13,9 @@ import {
   Filter,
   ClipboardCheck,
   ShieldAlert,
+  FileText,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { agendaService } from '../../api/agendaService';
 import type { ApiError } from '../../api/client';
@@ -43,6 +45,7 @@ const normalizarEstado = (turno: TurnoAgendaMedico): EstadoTurno => {
 
 export const AgendaMedica: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const idMedicoActual = user?.idMedico ?? null;
 
   const [fechaFiltro, setFechaFiltro] = useState<string>(getTodayLocalISO());
@@ -206,7 +209,7 @@ export const AgendaMedica: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 animate-fadeIn">
+    <div className="w-full max-w-6xl mx-auto animate-fadeIn">
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -436,8 +439,18 @@ export const AgendaMedica: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Acciones de atención médica (solo si está Pendiente) */}
+                {/* Acciones de atención médica */}
                 <div className="flex flex-wrap items-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/medico/historia-clinica?pacienteId=${turno.idPaciente}`)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[#0d5c68] text-xs font-semibold transition-colors"
+                    title="Consultar Historia Clínica del Paciente"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Historia Clínica
+                  </button>
+
                   {estado === 'Pendiente' ? (
                     <>
                       <button

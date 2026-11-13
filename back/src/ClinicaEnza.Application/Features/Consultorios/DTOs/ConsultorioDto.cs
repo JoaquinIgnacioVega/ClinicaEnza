@@ -7,4 +7,5 @@ public class ConsultorioDto
     public int Piso { get; set; }
     public string Sector { get; set; } = string.Empty;
     public string Ubicacion { get; set; } = string.Empty;
+    public bool Activo { get; set; }
 }

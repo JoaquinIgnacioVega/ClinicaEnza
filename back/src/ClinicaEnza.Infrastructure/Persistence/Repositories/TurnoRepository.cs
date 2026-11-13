@@ -125,6 +125,28 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Turno>> ObtenerPorPacienteAsync(
+        int idPaciente,
+        bool soloPendientes = true,
+        CancellationToken cancellationToken = default)
+    {
+        var consulta = _dbSet.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Include(t => t.Medico)
+            .Include(t => t.Consultorio)
+            .Where(t => t.IdPaciente == idPaciente)
+            .AsQueryable();
+
+        if (soloPendientes)
+        {
+            consulta = consulta.Where(t => t.Estado == EstadoTurno.Pendiente);
+        }
+
+        return await consulta
+            .OrderBy(t => t.HoraInicio)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Turno>> BuscarTurnosAsync(
         DateTime? fecha,
         int? idPaciente,

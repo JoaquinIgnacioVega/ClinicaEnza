@@ -1,12 +1,14 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurno;
+using ClinicaEnza.Application.Features.Turnos.Commands.CancelarTurnoPaciente;
 using ClinicaEnza.Application.Features.Turnos.Commands.CrearTurno;
-using ClinicaEnza.Application.Features.Turnos.Commands.ReagendarTurno;
 using ClinicaEnza.Application.Features.Turnos.Commands.MarcarTurnoRealizado;
+using ClinicaEnza.Application.Features.Turnos.Commands.ReagendarTurno;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerAgendaMedico;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnoPorId;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnos;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorMedico;
+using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorPaciente;
 using ClinicaEnza.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -185,6 +187,73 @@ public class TurnosController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [HttpGet("/api/pacientes/{idPaciente:int}/turnos")]
+    public async Task<IActionResult> ObtenerPorPaciente(
+        int idPaciente,
+        [FromQuery] bool soloPendientes = true,
+        CancellationToken cancellationToken = default)
+    {
+        var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+        if (!string.IsNullOrEmpty(claimId) && int.TryParse(claimId, out var claimPacienteId))
+        {
+            if (claimPacienteId != idPaciente && !User.IsInRole("Administrador") && !User.IsInRole("Recepcionista"))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para acceder a los turnos de otro paciente." });
+            }
+        }
+
+        var result = await _mediator.SendAsync(
+            new ObtenerTurnosPorPacienteQuery(idPaciente, soloPendientes), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("No se encontró") == true)
+                return NotFound(new { error = result.Error });
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpPut("/api/pacientes/{idPaciente:int}/turnos/{idTurno:int}/cancelar")]
+    public async Task<IActionResult> CancelarPorPaciente(
+        int idPaciente,
+        int idTurno,
+        CancellationToken cancellationToken = default)
+    {
+        var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+        int pacienteIdEfectivo = idPaciente;
+        if (!string.IsNullOrEmpty(claimId) && int.TryParse(claimId, out var claimPacienteId))
+        {
+            if (claimPacienteId != idPaciente && !User.IsInRole("Administrador") && !User.IsInRole("Recepcionista"))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para cancelar un turno que pertenece a otro paciente." });
+            }
+            pacienteIdEfectivo = claimPacienteId;
+        }
+
+        var result = await _mediator.SendAsync(
+            new CancelarTurnoPacienteCommand(idTurno, pacienteIdEfectivo), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            if (result.Error?.Contains("No tienes permiso") == true)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error });
+            }
+
+            if (result.Error?.Contains("no existe") == true || result.Error?.Contains("No se encontró") == true)
+            {
+                return NotFound(new { error = result.Error });
+            }
+
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(new { mensaje = "Turno cancelado exitosamente.", turno = result.Value });
     }
 }
 

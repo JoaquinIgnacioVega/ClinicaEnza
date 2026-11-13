@@ -82,7 +82,7 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
                     $"El paciente '{paciente.ObtenerNombreCompleto()}' ya tiene un turno asignado en ese horario.");
             }
 
-            var nuevoTurno = new Turno(request.HoraInicio, paciente, medico, consultorio);
+            var nuevoTurno = new Turno(request.HoraInicio, request.IdPaciente, request.IdMedico, horario.IdConsultorio);
             await _turnoRepository.AddAsync(nuevoTurno, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
