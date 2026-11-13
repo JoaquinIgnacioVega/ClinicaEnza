@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
 import { AppLayout } from '../components/layout/AppLayout';
 import { MedicoDashboardPage } from '../pages/medico/MedicoDashboardPage';
-import { AgendaTurnosPage } from '../pages/medico/AgendaTurnosPage';
+import { AgendaMedica } from '../features/turnos/AgendaMedica';
 import { HorariosMedicoPage } from '../pages/medico/HorariosMedicoPage';
 import { HistoriaClinicaMedicoPage } from '../pages/medico/HistoriaClinicaMedicoPage';
 import { PrescripcionesPage } from '../pages/medico/PrescripcionesPage';
@@ -32,7 +32,7 @@ export const AppRoutes: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={['Medico']} />}>
           <Route path="/medico" element={<AppLayout />}>
             <Route index element={<MedicoDashboardPage />} />
-            <Route path="turnos" element={<AgendaTurnosPage />} />
+            <Route path="turnos" element={<AgendaMedica />} />
             <Route path="horarios" element={<HorariosMedicoPage />} />
             <Route path="historia-clinica" element={<HistoriaClinicaMedicoPage />} />
             <Route path="prescripciones" element={<PrescripcionesPage />} />

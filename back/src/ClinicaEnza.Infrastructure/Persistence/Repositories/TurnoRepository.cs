@@ -97,6 +97,34 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Turno>> ObtenerAgendaMedicoAsync(
+        int idMedico,
+        DateTime? fecha = null,
+        EstadoTurno? estado = null,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Turno> query = _dbSet.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Include(t => t.Consultorio)
+            .Where(t => t.IdMedico == idMedico);
+
+        if (fecha.HasValue)
+        {
+            var fechaInicio = fecha.Value.Date;
+            var fechaFin = fechaInicio.AddDays(1);
+            query = query.Where(t => t.HoraInicio >= fechaInicio && t.HoraInicio < fechaFin);
+        }
+
+        if (estado.HasValue)
+        {
+            query = query.Where(t => t.Estado == estado.Value);
+        }
+
+        return await query
+            .OrderBy(t => t.HoraInicio)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Turno>> ObtenerPorPacienteAsync(
         int idPaciente,
         bool soloPendientes = true,

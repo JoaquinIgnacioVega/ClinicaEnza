@@ -1,10 +1,11 @@
-export type EstadoTurno = 'Pendiente' | 'Realizado' | 'Cancelado' | number;
+export type EstadoTurno = 'Pendiente' | 'Realizado' | 'Cancelado';
+export type FiltroEstadoAgenda = 'Todos' | EstadoTurno;
 
 export interface Turno {
   idTurno: number;
   horaInicio: string;
   horaFin: string;
-  estado: EstadoTurno;
+  estado: EstadoTurno | number;
   estadoDescripcion?: string;
   idPaciente: number;
   nombrePaciente?: string | null;
@@ -21,5 +22,24 @@ export interface Turno {
 export interface CancelarTurnoResponse {
   mensaje: string;
   turno: Turno;
+}
+
+export interface TurnoAgendaMedico {
+  idTurno: number;
+  horaInicio: string;
+  horaFin: string;
+  estado: number | EstadoTurno;
+  estadoDescripcion: string;
+  idPaciente: number;
+  nombreCompletoPaciente: string;
+  dniPaciente: string;
+  obraSocialPaciente: string;
+  edadPaciente: number;
+  idConsultorio: number;
+  ubicacionConsultorio: string;
+}
+
+export interface MarcarTurnoRealizadoRequest {
+  medicamentoRecetado?: string | null;
 }
 

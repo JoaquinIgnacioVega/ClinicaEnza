@@ -134,6 +134,11 @@ public class FakeTurnoRepository : FakeRepository<Turno>, ITurnoRepository
         return Task.FromResult<IReadOnlyList<Turno>>(list);
     }
 
+    public Task<IReadOnlyList<Turno>> ObtenerAgendaMedicoAsync(int idMedico, DateTime? fecha = null, EstadoTurno? estado = null, CancellationToken cancellationToken = default)
+    {
+        return ObtenerPorMedicoAsync(idMedico, fecha, estado, cancellationToken);
+    }
+
     public Task<IReadOnlyList<Turno>> ObtenerPorPacienteAsync(int idPaciente, bool soloPendientes = true, CancellationToken cancellationToken = default)
     {
         var consulta = Entities.Where(t => t.IdPaciente == idPaciente);
