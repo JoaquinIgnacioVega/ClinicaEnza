@@ -66,5 +66,55 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
         return tokenHandler.WriteToken(securityToken);
     }
+
+    public string GenerarTokenPaciente(Paciente paciente)
+    {
+        if (paciente == null)
+            throw new ArgumentNullException(nameof(paciente));
+
+        var secret = _configuration["Jwt:Secret"] 
+                     ?? _configuration["Jwt:Key"] 
+                     ?? "ClinicaEnzaSuperSecretKeyForJwtSigning2026!";
+
+        var issuer = _configuration["Jwt:Issuer"] ?? "ClinicaEnza";
+        var audience = _configuration["Jwt:Audience"] ?? "ClinicaEnzaApp";
+        var expirationMinutes = int.TryParse(_configuration["Jwt:ExpirationInMinutes"], out var exp) ? exp : 60;
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, paciente.IdPersona.ToString()),
+            new(ClaimTypes.NameIdentifier, paciente.IdPersona.ToString()),
+            new(ClaimTypes.Role, "Paciente"),
+            new("role", "Paciente"),
+            new("idPaciente", paciente.IdPersona.ToString()),
+            new("IdPaciente", paciente.IdPersona.ToString()),
+            new("dni", paciente.Dni),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("nombreCompleto", paciente.ObtenerNombreCompleto())
+        };
+
+        if (!string.IsNullOrWhiteSpace(paciente.Mail))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, paciente.Mail));
+            claims.Add(new Claim(ClaimTypes.Email, paciente.Mail));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = credentials
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(securityToken);
+    }
 }
 

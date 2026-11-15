@@ -25,8 +25,9 @@ export const AppRoutes: React.FC = () => {
         {/* Pantalla de respaldo para roles no reconocidos */}
         <Route path="/no-autorizado" element={<NoAutorizadoPage />} />
 
-        {/* Módulo de Paciente (Turnos de Paciente - Desarrollado por compañero) */}
-        <Route path="/mis-turnos" element={<MisTurnos idPacienteInicial={1} />} />
+        {/* Módulo de Paciente (Portal de Autogestión de Turnos de Paciente) */}
+        <Route path="/mis-turnos" element={<MisTurnos />} />
+        <Route path="/paciente" element={<MisTurnos />} />
 
         {/* Portal del Profesional Médico protegido exclusivamente para médicos */}
         <Route element={<ProtectedRoute allowedRoles={['Medico']} />}>

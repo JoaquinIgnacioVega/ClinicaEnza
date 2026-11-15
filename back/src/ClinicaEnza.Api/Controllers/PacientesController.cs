@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Pacientes.Commands.AutenticarPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.CrearPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.ModificarPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.RegistrarPrescripcion;
@@ -6,6 +7,7 @@ using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientePorId;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerHistoriaClinicaPorPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPacientes;
 using ClinicaEnza.Application.Features.Pacientes.Queries.ObtenerPrescripcionesPorPaciente;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
@@ -21,6 +23,22 @@ public class PacientesController : ControllerBase
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
+    [AllowAnonymous]
+    [HttpPost("autenticar")]
+    public async Task<IActionResult> Autenticar(
+        [FromBody] AutenticarPacienteCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.SendAsync(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return Unauthorized(new { error = result.Error });
+        }
+
+        return Ok(result.Value);
+    }
+
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> ObtenerTodos(
         [FromQuery] string? filtro,
@@ -35,6 +53,7 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
     {

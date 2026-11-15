@@ -1,5 +1,6 @@
 import React from 'react';
-import { Stethoscope, ClipboardList, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Stethoscope, ClipboardList, Shield, User, ArrowRight } from 'lucide-react';
 
 interface DemoAccount {
   label: string;
@@ -13,6 +14,7 @@ interface DemoAccountsProps {
 }
 
 export const DemoAccounts: React.FC<DemoAccountsProps> = ({ onSelectAccount }) => {
+  const navigate = useNavigate();
   const passwordDemo = 'Password123!';
 
   const accounts: DemoAccount[] = [
@@ -37,29 +39,53 @@ export const DemoAccounts: React.FC<DemoAccountsProps> = ({ onSelectAccount }) =
   ];
 
   return (
-    <div className="mt-8 p-4 rounded-xl border border-slate-200/90 bg-slate-50/50">
-      <div className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-0.5">
-        CUENTAS DE DEMOSTRACIÓN (DATOS REALES)
-      </div>
-      <p className="text-xs text-slate-500 mb-3">
-        Contraseña demo: <span className="font-semibold text-slate-700">{passwordDemo}</span>
-      </p>
+    <div className="mt-6 space-y-3">
+      <div className="p-4 rounded-xl border border-slate-200/90 bg-slate-50/50">
+        <div className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-0.5">
+          CUENTAS DE DEMOSTRACIÓN (DATOS REALES)
+        </div>
+        <p className="text-xs text-slate-500 mb-3">
+          Contraseña demo: <span className="font-semibold text-slate-700">{passwordDemo}</span>
+        </p>
 
-      <div className="grid grid-cols-3 gap-2.5">
-        {accounts.map((acc) => (
-          <button
-            key={acc.label}
-            type="button"
-            onClick={() => onSelectAccount(acc.identificador, passwordDemo)}
-            className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-slate-200 bg-white hover:border-[#0d5c68]/40 hover:bg-slate-50/80 active:scale-98 transition-all text-xs font-medium text-slate-700 gap-1.5 shadow-sm group"
-          >
-            <span className="p-1.5 rounded-full bg-slate-50 group-hover:bg-[#0d5c68]/10 transition-colors">
-              {acc.icon}
-            </span>
-            <span className="font-semibold">{acc.label}</span>
-          </button>
-        ))}
+        <div className="grid grid-cols-3 gap-2.5">
+          {accounts.map((acc) => (
+            <button
+              key={acc.label}
+              type="button"
+              onClick={() => onSelectAccount(acc.identificador, passwordDemo)}
+              className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-slate-200 bg-white hover:border-[#0d5c68]/40 hover:bg-slate-50/80 active:scale-98 transition-all text-xs font-medium text-slate-700 gap-1.5 shadow-sm group cursor-pointer"
+            >
+              <span className="p-1.5 rounded-full bg-slate-50 group-hover:bg-[#0d5c68]/10 transition-colors">
+                {acc.icon}
+              </span>
+              <span className="font-semibold">{acc.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Acceso Directo al Portal de Autogestión de Pacientes */}
+      <button
+        type="button"
+        onClick={() => navigate('/paciente')}
+        className="w-full p-3.5 rounded-xl border border-teal-200/90 bg-teal-50/50 hover:bg-teal-50 hover:border-[#0d5c68]/50 transition-all flex items-center justify-between gap-3 group cursor-pointer text-left"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#0d5c68]/10 text-[#0d5c68] flex items-center justify-center shrink-0">
+            <User className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-800 group-hover:text-[#0d5c68] transition-colors">
+              Portal de Autogestión de Pacientes
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Consultá o cancelá tus turnos médicos con tu DNI y correo electrónico
+            </p>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-[#0d5c68] group-hover:translate-x-0.5 transition-transform shrink-0" />
+      </button>
     </div>
   );
 };
