@@ -6,5 +6,6 @@ public interface IJwtTokenGenerator
 {
     string GenerateToken(Usuario usuario);
     string GenerarToken(Usuario usuario) => GenerateToken(usuario);
+    string GenerarTokenPaciente(Paciente paciente) => string.Empty;
 }
 

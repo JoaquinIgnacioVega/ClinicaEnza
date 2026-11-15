@@ -10,6 +10,7 @@ using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnos;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorMedico;
 using ClinicaEnza.Application.Features.Turnos.Queries.ObtenerTurnosPorPaciente;
 using ClinicaEnza.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -189,16 +190,23 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize]
     [HttpGet("/api/pacientes/{idPaciente:int}/turnos")]
     public async Task<IActionResult> ObtenerPorPaciente(
         int idPaciente,
         [FromQuery] bool soloPendientes = true,
         CancellationToken cancellationToken = default)
     {
-        var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
-        if (!string.IsNullOrEmpty(claimId) && int.TryParse(claimId, out var claimPacienteId))
+        var esPersonalClinica = User?.IsInRole("Administrador") == true
+                                || User?.IsInRole("Recepcionista") == true
+                                || User?.IsInRole("Medico") == true;
+
+        var claimId = User?.FindFirst("idPaciente")?.Value ?? User?.FindFirst("IdPaciente")?.Value;
+        var esRolPaciente = User?.IsInRole("Paciente") == true || !string.IsNullOrEmpty(claimId);
+
+        if (esRolPaciente && !esPersonalClinica)
         {
-            if (claimPacienteId != idPaciente && !User.IsInRole("Administrador") && !User.IsInRole("Recepcionista"))
+            if (!int.TryParse(claimId, out var claimPacienteId) || claimPacienteId != idPaciente)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para acceder a los turnos de otro paciente." });
             }
@@ -218,17 +226,24 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize]
     [HttpPut("/api/pacientes/{idPaciente:int}/turnos/{idTurno:int}/cancelar")]
     public async Task<IActionResult> CancelarPorPaciente(
         int idPaciente,
         int idTurno,
         CancellationToken cancellationToken = default)
     {
-        var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+        var esPersonalClinica = User?.IsInRole("Administrador") == true
+                                || User?.IsInRole("Recepcionista") == true
+                                || User?.IsInRole("Medico") == true;
+
+        var claimId = User?.FindFirst("idPaciente")?.Value ?? User?.FindFirst("IdPaciente")?.Value;
+        var esRolPaciente = User?.IsInRole("Paciente") == true || !string.IsNullOrEmpty(claimId);
+
         int pacienteIdEfectivo = idPaciente;
-        if (!string.IsNullOrEmpty(claimId) && int.TryParse(claimId, out var claimPacienteId))
+        if (esRolPaciente && !esPersonalClinica)
         {
-            if (claimPacienteId != idPaciente && !User.IsInRole("Administrador") && !User.IsInRole("Recepcionista"))
+            if (!int.TryParse(claimId, out var claimPacienteId) || claimPacienteId != idPaciente)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para cancelar un turno que pertenece a otro paciente." });
             }

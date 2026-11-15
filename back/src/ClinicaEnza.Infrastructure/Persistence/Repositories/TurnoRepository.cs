@@ -142,9 +142,11 @@ public class TurnoRepository : Repository<Turno>, ITurnoRepository
             consulta = consulta.Where(t => t.Estado == EstadoTurno.Pendiente);
         }
 
-        return await consulta
+        var turnos = await consulta.ToListAsync(cancellationToken);
+
+        return turnos
             .OrderBy(t => t.HoraInicio)
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 
     public async Task<IReadOnlyList<Turno>> BuscarTurnosAsync(
