@@ -7,11 +7,13 @@ using ClinicaEnza.Application.Features.Medicos.Commands.RegistrarMedico;
 using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicoPorId;
 using ClinicaEnza.Application.Features.Medicos.Queries.ObtenerMedicos;
 using ClinicaEnza.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class MedicosController : ControllerBase
 {
@@ -61,6 +63,7 @@ public class MedicosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPost]
     public async Task<IActionResult> Registrar(
         [FromBody] RegistrarMedicoCommand command,
@@ -73,6 +76,7 @@ public class MedicosController : ControllerBase
         return Created($"/api/medicos/{result.Value.IdMedico}", result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Modificar(
         int id,
@@ -92,6 +96,7 @@ public class MedicosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPost("{idMedico:int}/horarios")]
     public async Task<IActionResult> ConfigurarHorario(
         int idMedico,

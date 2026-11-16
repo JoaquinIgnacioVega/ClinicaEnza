@@ -48,7 +48,6 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                     Legajo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     Usuario_FechaInicio = table.Column<DateTime>(type: "TEXT", nullable: true, defaultValueSql: "CURRENT_TIMESTAMP"),
                     Rol = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    PasswordHash = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     DebeCambiarPassword = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true)
                 },
                 constraints: table =>

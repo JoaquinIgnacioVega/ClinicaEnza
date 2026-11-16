@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
         EnsureSqliteSchemaCompatibility();
     }
 
-    private void EnsureSqliteSchemaCompatibility()
+    public void EnsureSqliteSchemaCompatibility()
     {
         if (_sqliteSchemaChecked || !Database.IsSqlite()) return;
 
@@ -35,9 +35,14 @@ public class AppDbContext : DbContext
                     connection.Open();
                 }
 
-                EnsureColumn(connection, "Consultorios", "Activo", "ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;");
-                EnsureColumn(connection, "Personas", "PasswordHash", "ALTER TABLE Personas ADD COLUMN PasswordHash TEXT NULL;");
-                EnsureColumn(connection, "Personas", "DebeCambiarPassword", "ALTER TABLE Personas ADD COLUMN DebeCambiarPassword INTEGER NOT NULL DEFAULT 1;");
+                var tablesReady = TableExists(connection, "Consultorios") && TableExists(connection, "Personas");
+                if (tablesReady)
+                {
+                    EnsureColumn(connection, "Consultorios", "Activo", "ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;");
+                    EnsureColumn(connection, "Personas", "PasswordHash", "ALTER TABLE Personas ADD COLUMN PasswordHash TEXT NULL;");
+                    EnsureColumn(connection, "Personas", "DebeCambiarPassword", "ALTER TABLE Personas ADD COLUMN DebeCambiarPassword INTEGER NOT NULL DEFAULT 1;");
+                    _sqliteSchemaChecked = true;
+                }
 
                 if (closeConnection)
                 {
@@ -48,11 +53,19 @@ public class AppDbContext : DbContext
             {
                 // La tabla puede no existir todavía; las migraciones la crearán.
             }
-            finally
-            {
-                _sqliteSchemaChecked = true;
-            }
         }
+    }
+
+    private static bool TableExists(DbConnection connection, string tableName)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = $name;";
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = "$name";
+        parameter.Value = tableName;
+        command.Parameters.Add(parameter);
+        var count = Convert.ToInt32(command.ExecuteScalar());
+        return count > 0;
     }
 
     private static void EnsureColumn(DbConnection connection, string tableName, string columnName, string alterSql)

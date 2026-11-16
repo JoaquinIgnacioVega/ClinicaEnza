@@ -1,11 +1,8 @@
 export type EspecialidadNombre =
-  | 'ClinicaMedica'
+  | 'Clinica'
   | 'Pediatria'
   | 'Cardiologia'
-  | 'Dermatologia'
-  | 'Traumatologia'
-  | 'Ginecologia'
-  | 'Oftalmologia';
+  | 'Dermatologia';
 
 export interface EspecialidadItem {
   id: number;
@@ -62,7 +59,7 @@ export interface ConsultorioDto {
   activo?: boolean;
 }
 
-export type EstadoTurno = 'Pendiente' | 'Confirmado' | 'Cancelado' | 'Atendido';
+export type EstadoTurno = 'Pendiente' | 'Realizado' | 'Cancelado';
 
 export interface TurnoDto {
   idTurno: number;

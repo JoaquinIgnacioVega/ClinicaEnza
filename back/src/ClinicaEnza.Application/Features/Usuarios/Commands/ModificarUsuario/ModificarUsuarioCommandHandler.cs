@@ -77,6 +77,7 @@ public class ModificarUsuarioCommandHandler : IRequestHandler<ModificarUsuarioCo
         var usuarioDto = new UsuarioDto
         {
             IdUsuario = usuario.IdPersona,
+            IdPersona = usuario.IdPersona,
             Nombre = usuario.Nombre,
             Apellido = usuario.Apellido,
             Dni = usuario.Dni,
@@ -85,6 +86,7 @@ public class ModificarUsuarioCommandHandler : IRequestHandler<ModificarUsuarioCo
             Legajo = usuario.Legajo,
             FechaInicio = usuario.FechaInicio,
             Rol = usuario.Rol,
+            Activo = usuario.Activo,
             IdMedico = usuario.IdMedico
         };
 

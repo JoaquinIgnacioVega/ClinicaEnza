@@ -9,7 +9,7 @@ public class UsuarioConfiguration : IEntityTypeConfiguration<Usuario>
     public void Configure(EntityTypeBuilder<Usuario> builder)
     {
         builder.Property(e => e.Legajo).IsRequired().HasMaxLength(50);
-        builder.Property(e => e.PasswordHash).IsRequired();
+        builder.Property(e => e.PasswordHash).HasColumnName("PasswordHash").HasMaxLength(500).IsRequired(false);
         builder.Property(e => e.Rol).IsRequired();
         builder.Property(e => e.FechaInicio).HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.Activo).IsRequired().HasDefaultValue(true);

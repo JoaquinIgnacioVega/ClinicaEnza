@@ -1,11 +1,13 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.HorariosAtencion.Commands.ConfigurarHorarioAtencion;
 using ClinicaEnza.Application.Features.HorariosAtencion.Queries.ObtenerHorariosPorMedico;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/horarios-atencion")]
 public class HorariosAtencionController : ControllerBase
 {
@@ -16,6 +18,7 @@ public class HorariosAtencionController : ControllerBase
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPost]
     public async Task<IActionResult> Configurar(
         [FromBody] ConfigurarHorarioAtencionCommand command,
