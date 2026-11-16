@@ -5,12 +5,14 @@ using ClinicaEnza.Application.Features.Usuarios.Commands.RegistrarUsuario;
 using ClinicaEnza.Application.Features.Usuarios.Queries.ObtenerUsuarioPorId;
 using ClinicaEnza.Application.Features.Usuarios.Queries.ObtenerUsuarios;
 using ClinicaEnza.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Administrador")]
 public class UsuariosController : ControllerBase
 {
     private readonly IMediator _mediator;
