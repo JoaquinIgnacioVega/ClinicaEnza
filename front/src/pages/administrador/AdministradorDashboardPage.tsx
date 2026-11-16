@@ -87,7 +87,7 @@ export const AdministradorDashboardPage: React.FC = () => {
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              <span>En desarrollo</span>
+                <button type="button" onClick={() => navigate('/administrador/usuarios')} className="text-[#0d5c68] hover:underline">Gestionar usuarios</button>
             </div>
           </div>
 

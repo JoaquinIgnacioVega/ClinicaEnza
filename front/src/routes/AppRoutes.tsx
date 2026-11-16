@@ -11,6 +11,7 @@ import { RecepcionistaDashboardPage } from '../pages/recepcionista/Recepcionista
 import { RecepcionistaLayout } from '../components/layout/RecepcionistaLayout';
 import { RecepcionistaTurnosPage, RecepcionistaPacientesPage, RecepcionistaMedicosPage, RecepcionistaConsultoriosPage } from '../pages/recepcionista/RecepcionistaOperacionPages';
 import { AdministradorDashboardPage } from '../pages/administrador/AdministradorDashboardPage';
+import { GestionUsuariosPage } from '../pages/administrador/GestionUsuariosPage';
 import { NoAutorizadoPage } from '../pages/NoAutorizadoPage';
 import { MisTurnos } from '../features/turnos/MisTurnos';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -56,6 +57,7 @@ export const AppRoutes: React.FC = () => {
         {/* Portal de Administración protegido para Administrador */}
         <Route element={<ProtectedRoute allowedRoles={['Administrador']} />}>
           <Route path="/administrador" element={<AdministradorDashboardPage />} />
+          <Route path="/administrador/usuarios" element={<GestionUsuariosPage />} />
           <Route path="/administrador/*" element={<Navigate to="/administrador" replace />} />
         </Route>
 
