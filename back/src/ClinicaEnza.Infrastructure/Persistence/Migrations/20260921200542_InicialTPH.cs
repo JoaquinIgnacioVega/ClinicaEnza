@@ -19,7 +19,8 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Numero = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
                     Piso = table.Column<int>(type: "INTEGER", nullable: false),
-                    Sector = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
+                    Sector = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Activo = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: true)
                 },
                 constraints: table =>
                 {

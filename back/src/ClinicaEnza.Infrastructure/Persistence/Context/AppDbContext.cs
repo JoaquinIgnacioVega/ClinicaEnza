@@ -5,39 +5,10 @@ namespace ClinicaEnza.Infrastructure.Persistence.Context;
 
 public class AppDbContext : DbContext
 {
-    private static bool _sqliteSchemaChecked;
-    private static readonly object _schemaLock = new();
-
     public AppDbContext() { }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        EnsureSqliteSchemaCompatibility();
-    }
-
-    private void EnsureSqliteSchemaCompatibility()
-    {
-        if (_sqliteSchemaChecked) return;
-
-        lock (_schemaLock)
-        {
-            if (_sqliteSchemaChecked) return;
-            try
-            {
-                if (Database.IsSqlite())
-                {
-                    Database.ExecuteSqlRaw("ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;");
-                }
-            }
-            catch
-            {
-                // La columna Activo ya existe o la tabla aún no fue inicializada
-            }
-            finally
-            {
-                _sqliteSchemaChecked = true;
-            }
-        }
     }
 
     public DbSet<Persona> Personas { get; set; } = null!;
