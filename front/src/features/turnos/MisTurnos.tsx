@@ -36,6 +36,12 @@ export const MisTurnos: React.FC = () => {
   // Formulario de ingreso (Paso 1)
   const [dniInput, setDniInput] = useState<string>('');
   const [mailInput, setMailInput] = useState<string>('');
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [nuevaPassword, setNuevaPassword] = useState<string>('');
+  const [requiereCambioPassword, setRequiereCambioPassword] = useState<boolean>(() =>
+    turnosService.obtenerSesionPaciente()?.requiereCambioPassword ?? false
+  );
+  const [cambiandoPassword, setCambiandoPassword] = useState<boolean>(false);
   const [autenticando, setAutenticando] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -59,6 +65,9 @@ export const MisTurnos: React.FC = () => {
     setTurnos([]);
     setDniInput('');
     setMailInput('');
+    setPasswordInput('');
+    setNuevaPassword('');
+    setRequiereCambioPassword(false);
     setLoginError(null);
     setError(null);
     setSuccessMessage(null);
@@ -127,9 +136,11 @@ export const MisTurnos: React.FC = () => {
 
     try {
       setAutenticando(true);
-      const { paciente } = await turnosService.autenticarPaciente(dniLimpio, mailLimpio);
+      const response = await turnosService.autenticarPaciente(dniLimpio, mailLimpio, passwordInput);
+      const { paciente } = response;
 
       setPacienteActivo(paciente);
+      setRequiereCambioPassword(response.requiereCambioPassword);
       setSoloPendientes(true);
       setSuccessMessage(null);
       setError(null);
@@ -141,6 +152,26 @@ export const MisTurnos: React.FC = () => {
       );
     } finally {
       setAutenticando(false);
+    }
+  };
+
+  const handleCambiarPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pacienteActivo || nuevaPassword.length < 4) {
+      setError('La nueva contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+    try {
+      setCambiandoPassword(true);
+      await turnosService.cambiarPassword(pacienteActivo.idPaciente, nuevaPassword);
+      setRequiereCambioPassword(false);
+      setNuevaPassword('');
+      setError(null);
+      await cargarTurnos(pacienteActivo.idPaciente, true);
+    } catch (err) {
+      setError((err as ApiError).error || 'No fue posible cambiar la contraseña.');
+    } finally {
+      setCambiandoPassword(false);
     }
   };
 
@@ -367,6 +398,22 @@ export const MisTurnos: React.FC = () => {
               </div>
             </div>
 
+            <div className="w-full space-y-1.5">
+              <label htmlFor="password-paciente" className="block text-xs font-semibold text-slate-700 tracking-wide">
+                Contraseña
+              </label>
+              <input
+                id="password-paciente"
+                type="password"
+                required
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Contraseña temporal: 1234"
+                autoComplete="current-password"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0d5c68]/20 focus:border-[#0d5c68] focus:bg-white"
+              />
+            </div>
+
             <div className="pt-2">
               <button
                 type="submit"
@@ -411,6 +458,30 @@ export const MisTurnos: React.FC = () => {
   const displayName =
     pacienteActivo.nombreCompleto ||
     `${pacienteActivo.apellido.toUpperCase()}, ${pacienteActivo.nombre}`;
+  if (requiereCambioPassword) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <form onSubmit={handleCambiarPassword} className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+          <h1 className="text-xl font-bold text-slate-900">Cambiar contraseña</h1>
+          <p className="text-sm text-slate-600">Por seguridad, reemplazá la contraseña temporal antes de consultar tus turnos.</p>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <input
+            type="password"
+            required
+            minLength={4}
+            value={nuevaPassword}
+            onChange={(e) => setNuevaPassword(e.target.value)}
+            placeholder="Nueva contraseña"
+            className="w-full rounded-xl border border-slate-200 px-3.5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0d5c68]/20 focus:border-[#0d5c68]"
+          />
+          <button type="submit" disabled={cambiandoPassword} className="w-full rounded-xl bg-[#0d5c68] py-3 text-white font-semibold disabled:opacity-60">
+            {cambiandoPassword ? 'Guardando...' : 'Guardar contraseña'}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   const displayObraSocial = pacienteActivo.obraSocial || 'Particular';
   const displayDni = pacienteActivo.dni;
 

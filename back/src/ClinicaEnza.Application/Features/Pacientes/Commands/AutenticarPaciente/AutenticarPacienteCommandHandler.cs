@@ -15,13 +15,16 @@ public class AutenticarPacienteCommandHandler : IRequestHandler<AutenticarPacien
 
     private readonly IPacienteRepository _pacienteRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly IPasswordHasher _passwordHasher;
 
     public AutenticarPacienteCommandHandler(
         IPacienteRepository pacienteRepository,
-        IJwtTokenGenerator jwtTokenGenerator)
+        IJwtTokenGenerator jwtTokenGenerator,
+        IPasswordHasher passwordHasher)
     {
         _pacienteRepository = pacienteRepository ?? throw new ArgumentNullException(nameof(pacienteRepository));
         _jwtTokenGenerator = jwtTokenGenerator ?? throw new ArgumentNullException(nameof(jwtTokenGenerator));
+        _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
     }
 
     public async Task<Result<AutenticarPacienteResponseDto>> Handle(
@@ -31,15 +34,16 @@ public class AutenticarPacienteCommandHandler : IRequestHandler<AutenticarPacien
         var dniLimpio = request.Dni?.Trim() ?? string.Empty;
         var mailLimpio = request.Mail?.Trim() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(dniLimpio) || string.IsNullOrWhiteSpace(mailLimpio))
+        if (string.IsNullOrWhiteSpace(dniLimpio) || string.IsNullOrWhiteSpace(mailLimpio) || string.IsNullOrWhiteSpace(request.Password))
         {
             return Result.Failure<AutenticarPacienteResponseDto>(ErrorCredencialesInvalidas);
         }
 
         var paciente = await _pacienteRepository.ObtenerPorDniAsync(dniLimpio, cancellationToken);
-        if (paciente == null ||
+        if (paciente == null || string.IsNullOrWhiteSpace(paciente.PasswordHash) ||
             string.IsNullOrWhiteSpace(paciente.Mail) ||
-            !string.Equals(paciente.Mail.Trim(), mailLimpio, StringComparison.OrdinalIgnoreCase))
+            !string.Equals(paciente.Mail.Trim(), mailLimpio, StringComparison.OrdinalIgnoreCase) ||
+            !_passwordHasher.VerifyPassword(paciente.PasswordHash, request.Password))
         {
             return Result.Failure<AutenticarPacienteResponseDto>(ErrorCredencialesInvalidas);
         }
@@ -64,7 +68,8 @@ public class AutenticarPacienteCommandHandler : IRequestHandler<AutenticarPacien
         return Result.Success(new AutenticarPacienteResponseDto
         {
             Token = token,
-            Paciente = pacienteDto
+            Paciente = pacienteDto,
+            RequiereCambioPassword = paciente.DebeCambiarPassword
         });
     }
 }

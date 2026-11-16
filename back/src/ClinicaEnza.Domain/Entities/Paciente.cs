@@ -11,6 +11,8 @@ namespace ClinicaEnza.Domain
         public string ObraSocial { get; private set; } = string.Empty;
         public decimal Peso { get; private set; }
         public decimal Altura { get; private set; }
+        public string? PasswordHash { get; private set; }
+        public bool DebeCambiarPassword { get; private set; } = true;
 
         // Propiedades de navegación
         public HistoriaClinica? HistoriaClinica { get; private set; }
@@ -66,6 +68,24 @@ namespace ClinicaEnza.Domain
 
             Peso = peso;
             Altura = altura;
+        }
+
+        public void ConfigurarPasswordInicial(string passwordHash)
+        {
+            if (string.IsNullOrWhiteSpace(passwordHash))
+                throw new ArgumentException("El hash de la contraseña no puede estar vacío.", nameof(passwordHash));
+
+            PasswordHash = passwordHash;
+            DebeCambiarPassword = true;
+        }
+
+        public void CambiarPassword(string passwordHash)
+        {
+            if (string.IsNullOrWhiteSpace(passwordHash))
+                throw new ArgumentException("El hash de la contraseña no puede estar vacío.", nameof(passwordHash));
+
+            PasswordHash = passwordHash;
+            DebeCambiarPassword = false;
         }
 
         public override string ObtenerIdentificacion()

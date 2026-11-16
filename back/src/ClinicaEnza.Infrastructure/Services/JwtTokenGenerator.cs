@@ -88,6 +88,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new("role", "Paciente"),
             new("idPaciente", paciente.IdPersona.ToString()),
             new("IdPaciente", paciente.IdPersona.ToString()),
+            new("debeCambiarPassword", paciente.DebeCambiarPassword.ToString().ToLowerInvariant()),
             new("dni", paciente.Dni),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new("nombreCompleto", paciente.ObtenerNombreCompleto())

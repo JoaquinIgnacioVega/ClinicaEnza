@@ -9,6 +9,8 @@ public class PacienteConfiguration : IEntityTypeConfiguration<Paciente>
     public void Configure(EntityTypeBuilder<Paciente> builder)
     {
         builder.Property(e => e.ObraSocial).HasMaxLength(100);
+        builder.Property(e => e.PasswordHash).HasMaxLength(500);
+        builder.Property(e => e.DebeCambiarPassword).IsRequired().HasDefaultValue(true);
     }
 }
 
