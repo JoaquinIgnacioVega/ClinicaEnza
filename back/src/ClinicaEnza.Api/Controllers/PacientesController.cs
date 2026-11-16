@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class PacientesController : ControllerBase
 {
@@ -55,7 +56,7 @@ public class PacientesController : ControllerBase
         return result.IsFailure ? BadRequest(new { error = result.Error }) : Ok(result.Value);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Administrador,Recepcionista,Medico")]
     [HttpGet]
     public async Task<IActionResult> ObtenerTodos(
         [FromQuery] string? filtro,
@@ -70,10 +71,23 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Administrador,Recepcionista,Medico,Paciente")]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
     {
+        var esPersonalAutorizado = User.IsInRole("Administrador")
+                                   || User.IsInRole("Recepcionista")
+                                   || User.IsInRole("Medico");
+
+        if (!esPersonalAutorizado)
+        {
+            var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+            if (!int.TryParse(claimId, out var pacienteAutenticado) || pacienteAutenticado != id)
+            {
+                return Forbid();
+            }
+        }
+
         var result = await _mediator.SendAsync(new ObtenerPacientePorIdQuery(id), cancellationToken);
         if (result.IsFailure)
         {
@@ -88,6 +102,7 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPost]
     public async Task<IActionResult> Crear([FromBody] CrearPacienteCommand command, CancellationToken cancellationToken)
     {
@@ -100,6 +115,7 @@ public class PacientesController : ControllerBase
         return Created($"/api/pacientes/{result.Value.IdPaciente}", result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Modificar(
         int id,
@@ -121,6 +137,7 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Medico")]
     [HttpPost("{idPaciente:int}/prescripciones")]
     public async Task<IActionResult> RegistrarPrescripcion(
         int idPaciente,
@@ -142,11 +159,21 @@ public class PacientesController : ControllerBase
         return Created($"/api/pacientes/{idPaciente}/prescripciones/{result.Value.IdPrescripcion}", result.Value);
     }
 
+    [Authorize(Roles = "Medico,Paciente")]
     [HttpGet("{idPaciente:int}/prescripciones")]
     public async Task<IActionResult> ObtenerPrescripciones(
         int idPaciente,
         CancellationToken cancellationToken)
     {
+        if (!User.IsInRole("Medico"))
+        {
+            var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+            if (!int.TryParse(claimId, out var pacienteAutenticado) || pacienteAutenticado != idPaciente)
+            {
+                return Forbid();
+            }
+        }
+
         var result = await _mediator.SendAsync(new ObtenerPrescripcionesPorPacienteQuery(idPaciente), cancellationToken);
         if (result.IsFailure)
         {
@@ -161,11 +188,21 @@ public class PacientesController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Medico,Paciente")]
     [HttpGet("{idPaciente:int}/historia-clinica")]
     public async Task<IActionResult> ObtenerHistoriaClinica(
         int idPaciente,
         CancellationToken cancellationToken)
     {
+        if (!User.IsInRole("Medico"))
+        {
+            var claimId = User.FindFirst("idPaciente")?.Value ?? User.FindFirst("IdPaciente")?.Value;
+            if (!int.TryParse(claimId, out var pacienteAutenticado) || pacienteAutenticado != idPaciente)
+            {
+                return Forbid();
+            }
+        }
+
         var result = await _mediator.SendAsync(
             new ObtenerHistoriaClinicaPorPacienteQuery(idPaciente), cancellationToken);
 

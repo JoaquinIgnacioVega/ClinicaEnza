@@ -1,10 +1,12 @@
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Features.HorariosAtencion.Commands.AsignarConsultorioAHorario;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/horarios")]
 public class HorariosController : ControllerBase
 {
@@ -15,6 +17,7 @@ public class HorariosController : ControllerBase
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPut("{idHorario:int}/consultorio")]
     public async Task<IActionResult> AsignarConsultorio(
         int idHorario,

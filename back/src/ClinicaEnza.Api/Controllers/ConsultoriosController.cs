@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/consultorios")]
 public class ConsultoriosController : ControllerBase
 {
@@ -31,7 +32,7 @@ public class ConsultoriosController : ControllerBase
         return Ok(result.Value);
     }
 
-    [Authorize(Roles = "Recepcionista")]
+    [Authorize(Roles = "Recepcionista,Administrador")]
     [HttpPost]
     public async Task<IActionResult> Crear([FromBody] CrearConsultorioCommand command, CancellationToken cancellationToken)
     {
@@ -42,7 +43,7 @@ public class ConsultoriosController : ControllerBase
         return Created($"/api/consultorios/{result.Value.IdConsultorio}", result.Value);
     }
 
-    [Authorize(Roles = "Recepcionista")]
+    [Authorize(Roles = "Recepcionista,Administrador")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Modificar(int id, [FromBody] ModificarConsultorioCommand command, CancellationToken cancellationToken)
     {
@@ -52,7 +53,7 @@ public class ConsultoriosController : ControllerBase
         return Ok(result.Value);
     }
 
-    [Authorize(Roles = "Recepcionista")]
+    [Authorize(Roles = "Recepcionista,Administrador")]
     [HttpPatch("{id:int}/desactivar")]
     public async Task<IActionResult> Desactivar(int id, CancellationToken cancellationToken)
     {

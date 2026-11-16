@@ -190,6 +190,25 @@ public class ConfigurarHorarioAtencionCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ConsultorioInactivo_RetornaFallo()
+    {
+        // Arrange
+        CrearMedico(1);
+        var consultorio = CrearConsultorio(1, "101");
+        consultorio.Desactivar();
+        var command = new ConfigurarHorarioAtencionCommand(
+            1, 1, DayOfWeek.Monday, new TimeSpan(8, 0, 0), new TimeSpan(12, 0, 0));
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Contains("inactivo", result.Error);
+        Assert.Equal(0, _unitOfWork.SaveChangesCallCount);
+    }
+
+    [Fact]
     public async Task Handle_ErrorAlGuardar_EjecutaRollbackTransaction()
     {
         // Arrange
@@ -240,5 +259,23 @@ public class ConfigurarHorarioAtencionCommandHandlerTests
         // Assert
         Assert.True(result.IsFailure);
         Assert.Contains("No se encontró el médico", result.Error);
+    }
+
+    [Fact]
+    public void ConfigurarHorarioAtencionCommand_DeserializacionJson_MantieneIdMedico()
+    {
+        // Arrange
+        var json = """{"idMedico":3,"idConsultorio":1,"diaSemana":1,"horaDesde":"08:00:00","horaHasta":"12:00:00"}""";
+
+        // Act
+        var command = System.Text.Json.JsonSerializer.Deserialize<ConfigurarHorarioAtencionCommand>(
+            json,
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        // Assert
+        Assert.NotNull(command);
+        Assert.Equal(3, command!.IdMedico);
+        Assert.Equal(1, command.IdConsultorio);
+        Assert.Equal(DayOfWeek.Monday, command.DiaSemana);
     }
 }

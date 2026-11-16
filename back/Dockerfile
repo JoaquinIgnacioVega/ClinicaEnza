@@ -20,7 +20,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Directorio para la persistencia de base de datos
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data && chmod -R 777 /app/data
 
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production

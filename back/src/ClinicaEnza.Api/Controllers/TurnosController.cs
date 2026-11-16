@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ClinicaEnza.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class TurnosController : ControllerBase
 {
@@ -27,6 +28,7 @@ public class TurnosController : ControllerBase
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPost]
     public async Task<IActionResult> CrearTurno([FromBody] CrearTurnoCommand command, CancellationToken cancellationToken)
     {
@@ -39,6 +41,7 @@ public class TurnosController : ControllerBase
         return CreatedAtAction(nameof(ObtenerPorId), new { id = result.Value.IdTurno }, result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpGet]
     public async Task<IActionResult> ObtenerTurnos(
         [FromQuery] DateTime? fecha,
@@ -58,6 +61,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista,Medico")]
     [HttpPut("{id:int}/cancelar")]
     public async Task<IActionResult> CancelarTurno(int id, CancellationToken cancellationToken)
     {
@@ -70,6 +74,7 @@ public class TurnosController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista")]
     [HttpPut("{id:int}/reagendar")]
     public async Task<IActionResult> ReagendarTurno(
         int id,
@@ -87,6 +92,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Medico")]
     [HttpPut("{id:int}/realizar")]
     public async Task<IActionResult> MarcarTurnoRealizado(
         int id,
@@ -104,6 +110,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista,Medico")]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> ObtenerPorId(int id, CancellationToken cancellationToken)
     {
@@ -116,6 +123,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista,Medico")]
     [HttpGet("medico/{idMedico:int}")]
     public async Task<IActionResult> ObtenerPorMedico(
         int idMedico,
@@ -123,6 +131,16 @@ public class TurnosController : ControllerBase
         [FromQuery] EstadoTurno? estado,
         CancellationToken cancellationToken)
     {
+        var esAdminORecepcion = User.IsInRole("Administrador") || User.IsInRole("Recepcionista");
+        if (!esAdminORecepcion && User.IsInRole("Medico"))
+        {
+            var claimIdMedico = User.FindFirst("idMedico")?.Value ?? User.FindFirst("IdMedico")?.Value;
+            if (!int.TryParse(claimIdMedico, out var parsedClaimId) || parsedClaimId != idMedico)
+            {
+                return Forbid();
+            }
+        }
+
         var result = await _mediator.SendAsync(
             new ObtenerTurnosPorMedicoQuery(idMedico, fecha, estado), cancellationToken);
         if (result.IsFailure)
@@ -136,6 +154,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
+    [Authorize(Roles = "Administrador,Recepcionista,Medico")]
     [HttpGet("/api/medicos/{idMedico:int}/turnos/agenda")]
     public async Task<IActionResult> ObtenerAgendaMedico(
         int idMedico,
@@ -145,19 +164,30 @@ public class TurnosController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         int? medicoSolicitante = null;
+        var esAdminORecepcion = User.IsInRole("Administrador") || User.IsInRole("Recepcionista");
 
-        var claimIdMedico = User.FindFirst("idMedico")?.Value ?? User.FindFirst("IdMedico")?.Value;
-        if (!string.IsNullOrEmpty(claimIdMedico) && int.TryParse(claimIdMedico, out var parsedClaimId))
+        if (esAdminORecepcion)
         {
-            medicoSolicitante = parsedClaimId;
+            if (idMedicoSolicitante.HasValue)
+            {
+                medicoSolicitante = idMedicoSolicitante.Value;
+            }
+            else if (Request.Headers.TryGetValue("X-Id-Medico", out var headerVal) && int.TryParse(headerVal, out var parsedHeaderId))
+            {
+                medicoSolicitante = parsedHeaderId;
+            }
+            else
+            {
+                medicoSolicitante = idMedico;
+            }
         }
-        else if (Request.Headers.TryGetValue("X-Id-Medico", out var headerVal) && int.TryParse(headerVal, out var parsedHeaderId))
+        else if (User.IsInRole("Medico"))
         {
-            medicoSolicitante = parsedHeaderId;
-        }
-        else if (idMedicoSolicitante.HasValue)
-        {
-            medicoSolicitante = idMedicoSolicitante.Value;
+            var claimIdMedico = User.FindFirst("idMedico")?.Value ?? User.FindFirst("IdMedico")?.Value;
+            if (!string.IsNullOrEmpty(claimIdMedico) && int.TryParse(claimIdMedico, out var parsedClaimId))
+            {
+                medicoSolicitante = parsedClaimId;
+            }
         }
 
         if (!medicoSolicitante.HasValue)
@@ -190,7 +220,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Administrador,Recepcionista,Medico,Paciente")]
     [HttpGet("/api/pacientes/{idPaciente:int}/turnos")]
     public async Task<IActionResult> ObtenerPorPaciente(
         int idPaciente,
@@ -229,7 +259,7 @@ public class TurnosController : ControllerBase
         return Ok(result.Value);
     }
 
-    [Authorize]
+    [Authorize(Roles = "Administrador,Recepcionista,Medico,Paciente")]
     [HttpPut("/api/pacientes/{idPaciente:int}/turnos/{idTurno:int}/cancelar")]
     public async Task<IActionResult> CancelarPorPaciente(
         int idPaciente,

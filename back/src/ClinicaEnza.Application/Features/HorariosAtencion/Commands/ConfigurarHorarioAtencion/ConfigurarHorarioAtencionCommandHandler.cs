@@ -41,6 +41,9 @@ public class ConfigurarHorarioAtencionCommandHandler : IRequestHandler<Configura
         if (consultorio == null)
             return Result.Failure<HorarioAtencionDto>($"No se encontró el consultorio con ID {request.IdConsultorio}.");
 
+        if (!consultorio.Activo)
+            return Result.Failure<HorarioAtencionDto>("No se puede asignar un horario de atención a un consultorio inactivo.");
+
         var horariosDelDia = await _horarioRepository.FindAsync(
             h => h.DiaSemana == request.DiaSemana,
             cancellationToken);

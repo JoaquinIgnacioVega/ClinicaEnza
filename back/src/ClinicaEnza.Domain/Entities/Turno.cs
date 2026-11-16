@@ -117,4 +117,26 @@ public class Turno
 
         return HoraInicio < otroTurno.HoraFin && otroTurno.HoraInicio < HoraFin;
     }
+
+    public static Dictionary<EstadoTurno, int> ContarTurnosPorEstado(IEnumerable<Turno> turnos)
+    {
+        ArgumentNullException.ThrowIfNull(turnos);
+
+        var conteo = new Dictionary<EstadoTurno, int>
+        {
+            [EstadoTurno.Pendiente] = 0,
+            [EstadoTurno.Realizado] = 0,
+            [EstadoTurno.Cancelado] = 0
+        };
+
+        foreach (var turno in turnos)
+        {
+            if (turno != null && conteo.ContainsKey(turno.Estado))
+            {
+                conteo[turno.Estado]++;
+            }
+        }
+
+        return conteo;
+    }
 }

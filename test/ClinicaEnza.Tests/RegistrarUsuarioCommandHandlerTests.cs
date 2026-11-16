@@ -63,6 +63,8 @@ public class RegistrarUsuarioCommandHandlerTests
         Assert.Equal(command.Legajo, result.Value.Legajo);
         Assert.Equal(command.Mail, result.Value.Mail);
         Assert.Equal(command.Rol, result.Value.Rol);
+        Assert.Equal(result.Value.IdUsuario, result.Value.IdPersona);
+        Assert.True(result.Value.Activo);
         Assert.Single(_usuarioRepository.Usuarios);
         Assert.Equal("hashed_SecretPassword123!", _usuarioRepository.Usuarios[0].PasswordHash);
         Assert.Equal(1, _unitOfWork.SaveChangesCallCount);

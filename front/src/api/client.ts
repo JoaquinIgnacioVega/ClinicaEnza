@@ -31,7 +31,9 @@ export async function apiClient<T>(
     let errorMessage = 'Ocurrió un error inesperado al procesar la solicitud.';
     try {
       const data = await response.json();
-      if (data?.error) {
+      if (data?.message) {
+        errorMessage = data.message;
+      } else if (data?.error) {
         errorMessage = data.error;
       } else if (typeof data === 'string') {
         errorMessage = data;

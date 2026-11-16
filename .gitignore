@@ -485,3 +485,8 @@ $RECYCLE.BIN/
 dist/
 dist-ssr/
 *.local
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal

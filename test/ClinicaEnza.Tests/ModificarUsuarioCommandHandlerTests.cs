@@ -71,6 +71,8 @@ public class ModificarUsuarioCommandHandlerTests
         Assert.Equal("Mármol Picapiedra", result.Value.Apellido);
         Assert.Equal("pablo.marmol@clinicaenza.com", result.Value.Mail);
         Assert.Equal(RolUsuario.Administrador, result.Value.Rol);
+        Assert.Equal(usuario.IdPersona, result.Value.IdPersona);
+        Assert.True(result.Value.Activo);
         Assert.Null(result.Value.IdMedico);
         Assert.Equal(1, _unitOfWork.SaveChangesCallCount);
     }

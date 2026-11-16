@@ -34,7 +34,7 @@ public class UsuariosController : ControllerBase
             return BadRequest(new { error = result.Error });
         }
 
-        return Ok(result);
+        return Ok(result.Value);
     }
 
     [HttpGet("{id:int}")]
@@ -51,7 +51,7 @@ public class UsuariosController : ControllerBase
             return BadRequest(new { error = result.Error });
         }
 
-        return Ok(result);
+        return Ok(result.Value);
     }
 
     [HttpPost]

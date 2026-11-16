@@ -54,6 +54,11 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
         }
 
         var consultorio = horario.Consultorio;
+        if (consultorio != null && !consultorio.Activo)
+        {
+            return Result.Failure<TurnoDto>(
+                "El consultorio asignado a esa franja horaria se encuentra inactivo.");
+        }
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
@@ -70,7 +75,7 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
             if (superpuestosConsultorio.Any())
             {
                 throw new TurnoSuperpuestoException(
-                    $"El consultorio '{consultorio.Numero}' ya se encuentra ocupado en ese horario.");
+                    $"El consultorio '{consultorio?.Numero ?? horario.IdConsultorio.ToString()}' ya se encuentra ocupado en ese horario.");
             }
 
             var superpuestosPaciente = await _turnoRepository.ObtenerSuperpuestosPacienteAsync(
@@ -97,8 +102,8 @@ public class CrearTurnoCommandHandler : IRequestHandler<CrearTurnoCommand, Resul
                 NombrePaciente = paciente.ObtenerNombreCompleto(),
                 IdMedico = medico.IdPersona,
                 NombreMedico = medico.ObtenerNombreCompleto(),
-                IdConsultorio = consultorio.IdConsultorio,
-                NumeroConsultorio = consultorio.Numero
+                IdConsultorio = horario.IdConsultorio,
+                NumeroConsultorio = consultorio?.Numero ?? string.Empty
             });
         }
         catch

@@ -2,6 +2,7 @@ using System.Text;
 using ClinicaEnza.Api.Middlewares;
 using ClinicaEnza.Application;
 using ClinicaEnza.Infrastructure;
+using ClinicaEnza.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -88,6 +89,11 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.InitializeAsync(scope.ServiceProvider);
+}
 
 // Pipeline de solicitudes HTTP
 if (app.Environment.IsDevelopment())

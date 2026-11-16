@@ -42,6 +42,12 @@ public class ReagendarTurnoCommandHandler : IRequestHandler<ReagendarTurnoComman
                 "El nuevo horario no está incluido en la agenda de atención del médico.");
         }
 
+        if (horario.Consultorio != null && !horario.Consultorio.Activo)
+        {
+            return Result.Failure<TurnoDto>(
+                "El consultorio seleccionado se encuentra inactivo.");
+        }
+
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
@@ -57,7 +63,7 @@ public class ReagendarTurnoCommandHandler : IRequestHandler<ReagendarTurnoComman
             if (superpuestosConsultorio.Any())
             {
                 throw new TurnoSuperpuestoException(
-                    $"El consultorio '{horario.Consultorio.Numero}' ya se encuentra ocupado en ese horario.");
+                    $"El consultorio '{horario.Consultorio?.Numero ?? horario.IdConsultorio.ToString()}' ya se encuentra ocupado en ese horario.");
             }
 
             var superpuestosPaciente = await _turnoRepository.ObtenerSuperpuestosPacienteAsync(

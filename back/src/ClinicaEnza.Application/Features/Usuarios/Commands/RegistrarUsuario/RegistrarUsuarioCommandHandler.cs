@@ -104,6 +104,7 @@ public class RegistrarUsuarioCommandHandler : IRequestHandler<RegistrarUsuarioCo
             var usuarioDto = new UsuarioDto
             {
                 IdUsuario = usuario.IdPersona,
+                IdPersona = usuario.IdPersona,
                 Nombre = usuario.Nombre,
                 Apellido = usuario.Apellido,
                 Dni = usuario.Dni,
@@ -112,6 +113,7 @@ public class RegistrarUsuarioCommandHandler : IRequestHandler<RegistrarUsuarioCo
                 Legajo = usuario.Legajo,
                 FechaInicio = usuario.FechaInicio,
                 Rol = usuario.Rol,
+                Activo = usuario.Activo,
                 IdMedico = usuario.IdMedico
             };
 
