@@ -56,6 +56,11 @@ namespace ClinicaEnza.Domain
             Matricula = matricula.Trim();
         }
 
+        public Dictionary<EstadoTurno, int> ObtenerCantidadTurnosPorEstado()
+        {
+            return Turno.ContarTurnosPorEstado(Turnos);
+        }
+
         public string ObtenerFichaProfesional()
         {
             return $"Dr/a. {ObtenerNombreCompleto()} - MP: {Matricula} ({Especialidad})";

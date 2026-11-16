@@ -190,6 +190,25 @@ public class ConfigurarHorarioAtencionCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ConsultorioInactivo_RetornaFallo()
+    {
+        // Arrange
+        CrearMedico(1);
+        var consultorio = CrearConsultorio(1, "101");
+        consultorio.Desactivar();
+        var command = new ConfigurarHorarioAtencionCommand(
+            1, 1, DayOfWeek.Monday, new TimeSpan(8, 0, 0), new TimeSpan(12, 0, 0));
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsFailure);
+        Assert.Contains("inactivo", result.Error);
+        Assert.Equal(0, _unitOfWork.SaveChangesCallCount);
+    }
+
+    [Fact]
     public async Task Handle_ErrorAlGuardar_EjecutaRollbackTransaction()
     {
         // Arrange

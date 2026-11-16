@@ -208,6 +208,73 @@ namespace ClinicaEnza.Tests
 
             Assert.Equal("No se puede cancelar un turno cuya fecha y hora ya han vencido.", ex.Message);
         }
+
+        [Fact]
+        public void ContarTurnosPorEstado_ColeccionConDistintosEstados_RetornaConteoExacto()
+        {
+            // Arrange
+            var baseHora = DateTime.Now.AddDays(1);
+            var pendiente1 = new Turno(baseHora, CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            var pendiente2 = new Turno(baseHora.AddMinutes(20), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            var realizado = new Turno(baseHora.AddMinutes(40), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            realizado.MarcarComoRealizado();
+            var cancelado = new Turno(baseHora.AddMinutes(60), CrearPacienteMock(), CrearMedicoMock(), CrearConsultorioMock());
+            cancelado.Cancelar();
+
+            var turnos = new[] { pendiente1, pendiente2, realizado, cancelado };
+
+            // Act
+            var conteo = Turno.ContarTurnosPorEstado(turnos);
+
+            // Assert
+            Assert.Equal(3, conteo.Count);
+            Assert.Equal(2, conteo[EstadoTurno.Pendiente]);
+            Assert.Equal(1, conteo[EstadoTurno.Realizado]);
+            Assert.Equal(1, conteo[EstadoTurno.Cancelado]);
+        }
+
+        [Fact]
+        public void ContarTurnosPorEstado_ColeccionVacia_RetornaTodosEnCero()
+        {
+            // Arrange
+            var turnos = Array.Empty<Turno>();
+
+            // Act
+            var conteo = Turno.ContarTurnosPorEstado(turnos);
+
+            // Assert
+            Assert.Equal(3, conteo.Count);
+            Assert.Equal(0, conteo[EstadoTurno.Pendiente]);
+            Assert.Equal(0, conteo[EstadoTurno.Realizado]);
+            Assert.Equal(0, conteo[EstadoTurno.Cancelado]);
+        }
+
+        [Fact]
+        public void ContarTurnosPorEstado_ColeccionNula_LanzaArgumentNullException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => Turno.ContarTurnosPorEstado(null!));
+        }
+
+        [Fact]
+        public void ObtenerCantidadTurnosPorEstado_MedicoConTurnos_RetornaConteoExacto()
+        {
+            // Arrange
+            var medico = CrearMedicoMock(7);
+            var baseHora = DateTime.Now.AddDays(1);
+            var t1 = new Turno(baseHora, CrearPacienteMock(), medico, CrearConsultorioMock());
+            var t2 = new Turno(baseHora.AddMinutes(20), CrearPacienteMock(), medico, CrearConsultorioMock());
+            t2.MarcarComoRealizado();
+            medico.Turnos.AddRange(new[] { t1, t2 });
+
+            // Act
+            var conteo = medico.ObtenerCantidadTurnosPorEstado();
+
+            // Assert
+            Assert.Equal(1, conteo[EstadoTurno.Pendiente]);
+            Assert.Equal(1, conteo[EstadoTurno.Realizado]);
+            Assert.Equal(0, conteo[EstadoTurno.Cancelado]);
+        }
     }
 }
 

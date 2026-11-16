@@ -69,6 +69,10 @@ export const medicoService = {
     return apiClient<ConsultorioDto[]>('/api/consultorios');
   },
 
+  async crearConsultorio(data: Pick<ConsultorioDto, 'numero' | 'piso' | 'sector'>): Promise<ConsultorioDto> {
+    return apiClient<ConsultorioDto>('/api/consultorios', { method: 'POST', body: JSON.stringify(data) });
+  },
+
   async modificarConsultorio(id: number, data: Pick<ConsultorioDto, 'numero' | 'piso' | 'sector'>): Promise<ConsultorioDto> {
     return apiClient<ConsultorioDto>(`/api/consultorios/${id}`, { method: 'PUT', body: JSON.stringify(data) });
   },
