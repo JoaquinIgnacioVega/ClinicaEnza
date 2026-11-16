@@ -1,4 +1,5 @@
 using ClinicaEnza.Domain;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicaEnza.Infrastructure.Persistence.Context;
@@ -17,21 +18,52 @@ public class AppDbContext : DbContext
 
     private void EnsureSqliteSchemaCompatibility()
     {
-        if (_sqliteSchemaChecked) return;
+        if (_sqliteSchemaChecked || !Database.IsSqlite()) return;
 
         lock (_schemaLock)
         {
             if (_sqliteSchemaChecked) return;
+
             try
             {
-                if (Database.IsSqlite())
+                var connection = Database.GetDbConnection();
+                var closeConnection = connection.State != ConnectionState.Open;
+
+                if (closeConnection)
                 {
-                    Database.ExecuteSqlRaw("ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;");
+                    connection.Open();
+                }
+
+                using var command = connection.CreateCommand();
+                command.CommandText = "PRAGMA table_info('Consultorios');";
+
+                var activoExiste = false;
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (string.Equals(reader.GetString(1), "Activo", StringComparison.OrdinalIgnoreCase))
+                        {
+                            activoExiste = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!activoExiste)
+                {
+                    command.CommandText = "ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;";
+                    command.ExecuteNonQuery();
+                }
+
+                if (closeConnection)
+                {
+                    connection.Close();
                 }
             }
             catch
             {
-                // La columna Activo ya existe o la tabla aún no fue inicializada
+                // La tabla puede no existir todavía; las migraciones la crearán.
             }
             finally
             {

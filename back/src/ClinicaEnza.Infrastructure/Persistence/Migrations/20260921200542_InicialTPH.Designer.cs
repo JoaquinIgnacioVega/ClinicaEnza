@@ -34,6 +34,11 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                     b.Property<int>("Piso")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("Activo")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Sector")
                         .IsRequired()
                         .HasMaxLength(50)
