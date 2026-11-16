@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Interfaces.Persistence;
+using ClinicaEnza.Application.Common.Interfaces.Services;
 using ClinicaEnza.Application.Common.Mediator;
 using ClinicaEnza.Application.Common.Models;
 using ClinicaEnza.Application.Features.Pacientes.DTOs;
@@ -10,11 +11,13 @@ public class CrearPacienteHandler : IRequestHandler<CrearPacienteCommand, Result
 {
     private readonly IPacienteRepository _pacienteRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordHasher? _passwordHasher;
 
-    public CrearPacienteHandler(IPacienteRepository pacienteRepository, IUnitOfWork unitOfWork)
+    public CrearPacienteHandler(IPacienteRepository pacienteRepository, IUnitOfWork unitOfWork, IPasswordHasher? passwordHasher = null)
     {
         _pacienteRepository = pacienteRepository ?? throw new ArgumentNullException(nameof(pacienteRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<Result<PacienteDto>> Handle(CrearPacienteCommand request, CancellationToken cancellationToken = default)
@@ -62,6 +65,9 @@ public class CrearPacienteHandler : IRequestHandler<CrearPacienteCommand, Result
                 request.ObraSocial.Trim(),
                 request.Peso,
                 request.Altura);
+
+            if (_passwordHasher != null)
+                paciente.ConfigurarPasswordInicial(_passwordHasher.HashPassword("1234"));
 
             await _pacienteRepository.AddAsync(paciente, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,4 +1,5 @@
 using ClinicaEnza.Application.Common.Mediator;
+using ClinicaEnza.Application.Features.Pacientes.Commands.CambiarPasswordPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.AutenticarPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.CrearPaciente;
 using ClinicaEnza.Application.Features.Pacientes.Commands.ModificarPaciente;
@@ -36,6 +37,22 @@ public class PacientesController : ControllerBase
         }
 
         return Ok(result.Value);
+    }
+
+    [Authorize]
+    [HttpPut("{idPaciente:int}/password")]
+    public async Task<IActionResult> CambiarPassword(
+        int idPaciente,
+        [FromBody] CambiarPasswordPacienteCommand command,
+        CancellationToken cancellationToken)
+    {
+        var claimId = User.FindFirst("idPaciente")?.Value;
+        if (!int.TryParse(claimId, out var pacienteAutenticado) || pacienteAutenticado != idPaciente)
+            return Forbid();
+
+        var result = await _mediator.SendAsync(
+            command with { IdPaciente = idPaciente }, cancellationToken);
+        return result.IsFailure ? BadRequest(new { error = result.Error }) : Ok(result.Value);
     }
 
     [Authorize]

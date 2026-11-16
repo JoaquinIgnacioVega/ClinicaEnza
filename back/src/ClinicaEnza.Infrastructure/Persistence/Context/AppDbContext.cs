@@ -1,5 +1,6 @@
 using ClinicaEnza.Domain;
 using System.Data;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClinicaEnza.Infrastructure.Persistence.Context;
@@ -34,27 +35,9 @@ public class AppDbContext : DbContext
                     connection.Open();
                 }
 
-                using var command = connection.CreateCommand();
-                command.CommandText = "PRAGMA table_info('Consultorios');";
-
-                var activoExiste = false;
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        if (string.Equals(reader.GetString(1), "Activo", StringComparison.OrdinalIgnoreCase))
-                        {
-                            activoExiste = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!activoExiste)
-                {
-                    command.CommandText = "ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;";
-                    command.ExecuteNonQuery();
-                }
+                EnsureColumn(connection, "Consultorios", "Activo", "ALTER TABLE Consultorios ADD COLUMN Activo INTEGER NOT NULL DEFAULT 1;");
+                EnsureColumn(connection, "Personas", "PasswordHash", "ALTER TABLE Personas ADD COLUMN PasswordHash TEXT NULL;");
+                EnsureColumn(connection, "Personas", "DebeCambiarPassword", "ALTER TABLE Personas ADD COLUMN DebeCambiarPassword INTEGER NOT NULL DEFAULT 1;");
 
                 if (closeConnection)
                 {
@@ -69,6 +52,30 @@ public class AppDbContext : DbContext
             {
                 _sqliteSchemaChecked = true;
             }
+        }
+    }
+
+    private static void EnsureColumn(DbConnection connection, string tableName, string columnName, string alterSql)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = $"PRAGMA table_info('{tableName}');";
+        var exists = false;
+        using (var reader = command.ExecuteReader())
+        {
+            while (reader.Read())
+            {
+                if (string.Equals(reader.GetString(1), columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    exists = true;
+                    break;
+                }
+            }
+        }
+
+        if (!exists)
+        {
+            command.CommandText = alterSql;
+            command.ExecuteNonQuery();
         }
     }
 

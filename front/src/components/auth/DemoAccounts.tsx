@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stethoscope, ClipboardList, Shield, User, ArrowRight } from 'lucide-react';
+import { Stethoscope, ClipboardList, User, ArrowRight } from 'lucide-react';
 
 interface DemoAccount {
   label: string;
@@ -30,12 +30,6 @@ export const DemoAccounts: React.FC<DemoAccountsProps> = ({ onSelectAccount }) =
       rolNombre: 'Ana Gómez',
       icon: <ClipboardList className="w-4 h-4 text-[#0d5c68]" />,
     },
-    {
-      label: 'Administrador',
-      identificador: 'carlos.admin@clinicaenza.com',
-      rolNombre: 'Carlos González',
-      icon: <Shield className="w-4 h-4 text-[#0d5c68]" />,
-    },
   ];
 
   return (
@@ -48,7 +42,7 @@ export const DemoAccounts: React.FC<DemoAccountsProps> = ({ onSelectAccount }) =
           Contraseña demo: <span className="font-semibold text-slate-700">{passwordDemo}</span>
         </p>
 
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
           {accounts.map((acc) => (
             <button
               key={acc.label}

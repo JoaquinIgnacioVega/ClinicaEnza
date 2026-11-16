@@ -82,6 +82,11 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("DebeCambiarPassword")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(true);
+
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("TEXT");
 
@@ -93,6 +98,10 @@ namespace ClinicaEnza.Infrastructure.Persistence.Migrations
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TipoPersona")

@@ -206,6 +206,9 @@ public class TurnosController : ControllerBase
 
         if (esRolPaciente && !esPersonalClinica)
         {
+            if (User?.FindFirst("debeCambiarPassword")?.Value == "true")
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = "Debes cambiar tu contraseña antes de consultar tus turnos." });
+
             if (!int.TryParse(claimId, out var claimPacienteId) || claimPacienteId != idPaciente)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para acceder a los turnos de otro paciente." });
@@ -243,6 +246,9 @@ public class TurnosController : ControllerBase
         int pacienteIdEfectivo = idPaciente;
         if (esRolPaciente && !esPersonalClinica)
         {
+            if (User?.FindFirst("debeCambiarPassword")?.Value == "true")
+                return StatusCode(StatusCodes.Status403Forbidden, new { error = "Debes cambiar tu contraseña antes de cancelar turnos." });
+
             if (!int.TryParse(claimId, out var claimPacienteId) || claimPacienteId != idPaciente)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = "No tienes permiso para cancelar un turno que pertenece a otro paciente." });

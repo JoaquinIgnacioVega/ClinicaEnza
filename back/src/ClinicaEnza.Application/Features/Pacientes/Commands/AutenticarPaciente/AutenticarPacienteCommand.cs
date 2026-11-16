@@ -8,14 +8,16 @@ public class AutenticarPacienteCommand : IRequest<Result<AutenticarPacienteRespo
 {
     public string Dni { get; set; } = string.Empty;
     public string Mail { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 
     public AutenticarPacienteCommand()
     {
     }
 
-    public AutenticarPacienteCommand(string dni, string mail)
+    public AutenticarPacienteCommand(string dni, string mail, string password)
     {
         Dni = dni;
         Mail = mail;
+        Password = password;
     }
 }
