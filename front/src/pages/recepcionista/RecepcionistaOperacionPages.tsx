@@ -128,6 +128,7 @@ export const RecepcionistaTurnosPage: React.FC = () => {
   const [estadoSeleccionado, setEstadoSeleccionado] = useState('');
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState('');
   const [busquedaPacienteEditor, setBusquedaPacienteEditor] = useState('');
+  const [pacienteEditorTexto, setPacienteEditorTexto] = useState('');
   const [medicoSeleccionado, setMedicoSeleccionado] = useState('');
   const [editor, setEditor] = useState<EditorTurno | null>(null);
   const [detalle, setDetalle] = useState<TurnoDto | null>(null);
@@ -204,6 +205,7 @@ export const RecepcionistaTurnosPage: React.FC = () => {
   const abrirCreacion = () => {
     setAviso(null);
     setBusquedaPacienteEditor('');
+    setPacienteEditorTexto('');
     setEditor({ modo: 'crear', idPaciente: '', idMedico: '', fecha: hoy(), horaInicio: '' });
   };
 
@@ -286,7 +288,7 @@ export const RecepcionistaTurnosPage: React.FC = () => {
 
       {editor && <Modal titulo={editor.modo === 'crear' ? 'Registrar turno' : 'Reprogramar turno'} onClose={() => setEditor(null)}>
         <form onSubmit={guardarTurno} className="space-y-5">
-          {editor.modo === 'crear' && <div className="space-y-2"><label className="block text-xs font-medium text-slate-600">Buscar paciente por nombre, DNI o correo<input type="search" value={busquedaPacienteEditor} onChange={(event) => setBusquedaPacienteEditor(event.target.value)} placeholder="Ej.: Joaco, 45573520 o correo" className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#55bdc7]" /></label><label className="block text-xs font-medium text-slate-600">Paciente<select required value={editor.idPaciente} onChange={(event) => setEditor({ ...editor, idPaciente: event.target.value })} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"><option value="">Seleccionar paciente ({pacientesDelEditor.length})</option>{pacientesDelEditor.map((paciente) => <option key={paciente.idPaciente} value={paciente.idPaciente}>{paciente.nombreCompleto} · DNI {paciente.dni}</option>)}</select></label>{pacientesDelEditor.length === 0 && <p className="text-xs text-amber-700">No se encontraron pacientes con ese criterio.</p>}</div>}
+          {editor.modo === 'crear' && <label className="block text-xs font-medium text-slate-600">Paciente<input required list="pacientes-turno" value={pacienteEditorTexto} onChange={(event) => { const texto = event.target.value; const paciente = pacientes.find((item) => `${item.nombreCompleto} · DNI ${item.dni}` === texto); setPacienteEditorTexto(texto); setBusquedaPacienteEditor(texto); setEditor({ ...editor, idPaciente: paciente ? String(paciente.idPaciente) : '' }); }} placeholder="Buscar por nombre, DNI o correo" className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#55bdc7]" /><datalist id="pacientes-turno">{pacientesDelEditor.map((paciente) => <option key={paciente.idPaciente} value={`${paciente.nombreCompleto} · DNI ${paciente.dni}`} label={paciente.mail} />)}</datalist>{pacientesDelEditor.length === 0 && <span className="mt-1 block text-xs text-amber-700">No se encontraron pacientes con ese criterio.</span>}</label>}
           <label className="block text-xs font-medium text-slate-600">Médico<select required disabled={editor.modo === 'reagendar'} value={editor.idMedico} onChange={(event) => setEditor({ ...editor, idMedico: event.target.value, horaInicio: '' })} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">Seleccionar médico</option>{medicos.map((medico) => <option key={medico.idMedico} value={medico.idMedico}>{medico.nombreCompleto} · {medico.especialidadNombre}</option>)}</select></label>
           <Campo etiqueta="Fecha" type="date" min={hoy()} required value={editor.fecha} onChange={(event) => setEditor({ ...editor, fecha: event.target.value, horaInicio: '' })} />
           <label className="block text-xs font-medium text-slate-600">Horario disponible<select required value={editor.horaInicio} onChange={(event) => setEditor({ ...editor, horaInicio: event.target.value })} disabled={!editor.idMedico || !editor.fecha || cargandoSlots} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">{cargandoSlots ? 'Buscando horarios…' : 'Seleccionar horario'}</option>{slots.map((slot) => <option key={`${slot.horaInicio}-${slot.idConsultorio}`} value={slot.horaInicio}>{hora(slot.horaInicio)} · {slot.ubicacionConsultorio}</option>)}</select></label>
