@@ -122,11 +122,15 @@ export const RecepcionistaTurnosPage: React.FC = () => {
   const [turnos, setTurnos] = useState<TurnoDto[]>([]);
   const [pacientes, setPacientes] = useState<PacienteDto[]>([]);
   const [medicos, setMedicos] = useState<MedicoDto[]>([]);
+  const [especialidades, setEspecialidades] = useState<EspecialidadItem[]>([]);
   const [slots, setSlots] = useState<SlotDisponibleDto[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [fechaSeleccionada, setFechaSeleccionada] = useState('');
   const [estadoSeleccionado, setEstadoSeleccionado] = useState('');
   const [pacienteSeleccionado, setPacienteSeleccionado] = useState('');
+  const [busquedaPacienteEditor, setBusquedaPacienteEditor] = useState('');
+  const [pacienteEditorTexto, setPacienteEditorTexto] = useState('');
+  const [especialidadEditor, setEspecialidadEditor] = useState('');
   const [medicoSeleccionado, setMedicoSeleccionado] = useState('');
   const [editor, setEditor] = useState<EditorTurno | null>(null);
   const [detalle, setDetalle] = useState<TurnoDto | null>(null);
@@ -138,7 +142,7 @@ export const RecepcionistaTurnosPage: React.FC = () => {
   const cargar = useCallback(async () => {
     setCargando(true);
     try {
-      const [agenda, listaPacientes, listaMedicos] = await Promise.all([
+      const [agenda, listaPacientes, listaMedicos, listaEspecialidades] = await Promise.all([
         recepcionistaService.obtenerTurnos({
           fecha: fechaSeleccionada || undefined,
           idPaciente: pacienteSeleccionado ? Number(pacienteSeleccionado) : undefined,
@@ -147,10 +151,12 @@ export const RecepcionistaTurnosPage: React.FC = () => {
         }),
         recepcionistaService.obtenerPacientes(),
         medicoService.obtenerMedicos(),
+        medicoService.obtenerEspecialidades(),
       ]);
       setTurnos(agenda);
       setPacientes(listaPacientes);
       setMedicos(listaMedicos);
+      setEspecialidades(listaEspecialidades);
     } catch (error) {
       setAviso({ texto: mensajeError(error), error: true });
     } finally {
@@ -180,6 +186,22 @@ export const RecepcionistaTurnosPage: React.FC = () => {
     return coincideTexto;
   }), [turnos, busqueda]);
 
+  const pacientesDelEditor = useMemo(() => {
+    const termino = busquedaPacienteEditor.trim().toLowerCase();
+    if (!termino) return pacientes;
+
+    return pacientes.filter((paciente) =>
+      `${paciente.nombreCompleto} ${paciente.dni} ${paciente.mail}`
+        .toLowerCase()
+        .includes(termino),
+    );
+  }, [pacientes, busquedaPacienteEditor]);
+
+  const medicosDelEditor = useMemo(() => {
+    if (!especialidadEditor) return medicos;
+    return medicos.filter((medico) => String(medico.especialidad) === especialidadEditor);
+  }, [medicos, especialidadEditor]);
+
   const abrirDetalle = async (idTurno: number) => {
     setAviso(null);
     try {
@@ -191,12 +213,21 @@ export const RecepcionistaTurnosPage: React.FC = () => {
 
   const abrirCreacion = () => {
     setAviso(null);
+    setBusquedaPacienteEditor('');
+    setPacienteEditorTexto('');
+    setEspecialidadEditor('');
     setEditor({ modo: 'crear', idPaciente: '', idMedico: '', fecha: hoy(), horaInicio: '' });
   };
 
   const abrirReagenda = (turno: TurnoDto) => {
     setAviso(null);
     setEditor({ modo: 'reagendar', turno, idPaciente: String(turno.idPaciente), idMedico: String(turno.idMedico), fecha: soloFecha(turno.horaInicio), horaInicio: '' });
+  };
+
+  const seleccionarPacienteEditor = (paciente: PacienteDto) => {
+    setPacienteEditorTexto(`${paciente.nombreCompleto} · DNI ${paciente.dni}`);
+    setBusquedaPacienteEditor('');
+    setEditor((actual) => actual ? { ...actual, idPaciente: String(paciente.idPaciente) } : actual);
   };
 
   const guardarTurno = async (event: React.FormEvent) => {
@@ -273,8 +304,8 @@ export const RecepcionistaTurnosPage: React.FC = () => {
 
       {editor && <Modal titulo={editor.modo === 'crear' ? 'Registrar turno' : 'Reprogramar turno'} onClose={() => setEditor(null)}>
         <form onSubmit={guardarTurno} className="space-y-5">
-          {editor.modo === 'crear' && <label className="block text-xs font-medium text-slate-600">Paciente<select required value={editor.idPaciente} onChange={(event) => setEditor({ ...editor, idPaciente: event.target.value })} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"><option value="">Seleccionar paciente</option>{pacientes.map((paciente) => <option key={paciente.idPaciente} value={paciente.idPaciente}>{paciente.nombreCompleto} · DNI {paciente.dni}</option>)}</select></label>}
-          <label className="block text-xs font-medium text-slate-600">Médico<select required disabled={editor.modo === 'reagendar'} value={editor.idMedico} onChange={(event) => setEditor({ ...editor, idMedico: event.target.value, horaInicio: '' })} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">Seleccionar médico</option>{medicos.map((medico) => <option key={medico.idMedico} value={medico.idMedico}>{medico.nombreCompleto} · {medico.especialidadNombre}</option>)}</select></label>
+          {editor.modo === 'crear' && <label className="block text-xs font-medium text-slate-600">Paciente<div className="relative mt-1.5"><input required value={pacienteEditorTexto} onChange={(event) => { const texto = event.target.value; setPacienteEditorTexto(texto); setBusquedaPacienteEditor(texto); setEditor({ ...editor, idPaciente: '' }); }} placeholder="Buscar por nombre, DNI o correo" className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#55bdc7]" />{busquedaPacienteEditor.trim() && <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg">{pacientesDelEditor.length > 0 ? pacientesDelEditor.map((paciente) => <button key={paciente.idPaciente} type="button" onClick={() => seleccionarPacienteEditor(paciente)} className="block w-full rounded-lg px-3 py-2 text-left text-xs hover:bg-cyan-50"><span className="font-semibold text-slate-800">{paciente.nombreCompleto} · DNI {paciente.dni}</span><span className="mt-0.5 block text-slate-500">{paciente.mail}</span></button>) : <p className="px-3 py-2 text-xs text-amber-700">No se encontraron pacientes con ese criterio.</p>}</div>}</div></label>}
+          <div className="space-y-2"><label className="block text-xs font-medium text-slate-600">Especialidad<select disabled={editor.modo === 'reagendar'} value={especialidadEditor} onChange={(event) => { setEspecialidadEditor(event.target.value); setEditor({ ...editor, idMedico: '', horaInicio: '' }); }} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">Todas las especialidades</option>{especialidades.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label><label className="block text-xs font-medium text-slate-600">Médico<select required disabled={editor.modo === 'reagendar'} value={editor.idMedico} onChange={(event) => setEditor({ ...editor, idMedico: event.target.value, horaInicio: '' })} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">Seleccionar médico</option>{medicosDelEditor.map((medico) => <option key={medico.idMedico} value={medico.idMedico}>{medico.nombreCompleto} · {medico.especialidadNombre}</option>)}</select>{medicosDelEditor.length === 0 && <span className="mt-1 block text-xs text-amber-700">No hay médicos para esa especialidad.</span>}</label></div>
           <Campo etiqueta="Fecha" type="date" min={hoy()} required value={editor.fecha} onChange={(event) => setEditor({ ...editor, fecha: event.target.value, horaInicio: '' })} />
           <label className="block text-xs font-medium text-slate-600">Horario disponible<select required value={editor.horaInicio} onChange={(event) => setEditor({ ...editor, horaInicio: event.target.value })} disabled={!editor.idMedico || !editor.fecha || cargandoSlots} className="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm disabled:bg-slate-50"><option value="">{cargandoSlots ? 'Buscando horarios…' : 'Seleccionar horario'}</option>{slots.map((slot) => <option key={`${slot.horaInicio}-${slot.idConsultorio}`} value={slot.horaInicio}>{hora(slot.horaInicio)} · {slot.ubicacionConsultorio}</option>)}</select></label>
           {!cargandoSlots && editor.idMedico && editor.fecha && slots.length === 0 && <p className="text-xs text-amber-700">El médico no tiene horarios libres para esa fecha.</p>}
